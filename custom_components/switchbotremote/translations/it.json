@@ -1,0 +1,21 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "name": "Nome dello switchbot hub - deve essere unico per installazione di homeassistant",
+                    "token": "Inserire il token da sviluppatore di switchbot",
+                    "secret": "Inserire il secret da sviluppatore di switchbot"
+                }
+            }
+        }
+    }
+}
