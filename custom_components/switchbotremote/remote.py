@@ -2,7 +2,7 @@ from homeassistant.components.remote import RemoteEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
-from switchbot import Remote
+from .client import Remote
 
 from .const import DOMAIN
 

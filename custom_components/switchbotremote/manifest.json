@@ -8,6 +8,6 @@
   "dependencies": [],
   "documentation": "https://www.home-assistant.io/integrations/switchbotremote",
   "iot_class": "cloud_push",
-  "requirements": ["python-switchbot==2.3.1"],
+  "requirements": [],
   "version": "0.0.1"
 }

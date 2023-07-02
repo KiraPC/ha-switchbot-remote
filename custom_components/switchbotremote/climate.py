@@ -11,7 +11,7 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import TEMP_CELSIUS
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
-from switchbot import Remote
+from .client import Remote
 
 from .const import DOMAIN
 
