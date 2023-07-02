@@ -1,1 +1,3 @@
-# ha-switchbot-remote
+# SwitchBot Remote IR for Home Assistant
+
+## Installation
