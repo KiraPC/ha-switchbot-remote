@@ -17,7 +17,7 @@ class SwitchBotClient:
         self._token = token
         self._secret = secret
         self._nonce = nonce
-    
+
     @property
     def headers(self):
         headers = dict()
@@ -32,10 +32,10 @@ class SwitchBotClient:
             ).digest()
         )
 
-        self.headers["Authorization"] = self.token
-        self.headers["t"] = str(timestamp)
-        self.headers["sign"] = signature
-        self.headers["nonce"] = self._nonce
+        headers["Authorization"] = self._token
+        headers["t"] = str(timestamp)
+        headers["sign"] = signature
+        headers["nonce"] = self._nonce
 
         return headers
 
