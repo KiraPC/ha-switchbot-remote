@@ -129,7 +129,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         for remote in self.discovered_devices:
             if remote.id == self.selected_device and remote.type in STEP_CONFIGURE_DEVICE:
                 schema = STEP_CONFIGURE_DEVICE[remote.type](
-                    self.config_entry.data[remote.id]
+                    self.config_entry.data.get(remote.id, {})
                 )
 
         return self.async_show_form(
