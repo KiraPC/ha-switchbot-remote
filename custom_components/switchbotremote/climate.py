@@ -42,6 +42,7 @@ class SwitchBotRemoteClimate(ClimateEntity):
         self._is_on = False
         self._name = name
 
+        self._last_hvac_mode = HVACMode.COOL
         self._attr_hvac_modes = [
             HVACMode.OFF,
             HVACMode.COOL,
@@ -78,6 +79,10 @@ class SwitchBotRemoteClimate(ClimateEntity):
     def power_state(self):
         return "on" if self._is_on else "off"
 
+    def turn_on(self):
+        """Turn on."""
+        self.set_hvac_mode(self._last_hvac_mode)
+
     @property
     def target_temperature(self) -> int:
         return self._attr_target_temperature
@@ -92,6 +97,8 @@ class SwitchBotRemoteClimate(ClimateEntity):
         if hvac_mode == "off":
             self.sb.turn("off")
             self._is_on = False
+        else:
+            self._last_hvac_mode = hvac_mode
 
         self._is_on = True
         self._attr_hvac_mode = hvac_mode
