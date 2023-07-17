@@ -148,6 +148,16 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
     def supported_features(self):
         """Return the list of supported features."""
         return self._supported_features
+    
+    @property
+    def current_temperature(self):
+        """Return the current temperature."""
+        return self._current_temperature
+
+    @property
+    def current_humidity(self):
+        """Return the current humidity."""
+        return self._current_humidity
 
     @property
     def extra_state_attributes(self):
