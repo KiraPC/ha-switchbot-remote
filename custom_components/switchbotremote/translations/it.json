@@ -17,5 +17,28 @@
                 }
             }
         }
+    },
+    "options": {
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "init": {
+                "title": "Personalizza un dispositivo",
+                "description": "Scegli il dispositivo configurato che si desidera personalizzare.",
+                "data": {
+                    "selected_device": "Dispositivi configurati"
+                }
+            },
+            "edit_device": {
+                "title": "Configura dispositivo",
+                "data": {
+                    "temperature_sensor": "ID sensore temperatura da utilizzare",
+                    "umidity_sensor": "ID sensore umidità da utilizzare"
+                }
+            }
+        }
     }
 }

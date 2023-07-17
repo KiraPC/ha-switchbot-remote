@@ -2,27 +2,25 @@ from homeassistant.components.remote import RemoteEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
-from .client import Remote
+from .client.remote import SupportedRemote
 
 from .const import DOMAIN
 
 
 class SwitchBotRemoteTV(RemoteEntity):
-    _attr_has_entity_name = True
+    _attr_has_entity_name = False
 
-    def __init__(self, sb: Remote, _id: str, name: str) -> None:
+    def __init__(self, sb: SupportedRemote, _id: str, name: str) -> None:
         super().__init__()
         self.sb = sb
         self._attr_unique_id = _id
         self._is_on = False
-        self._name = name
 
     @property
     def device_info(self):
         return DeviceInfo(
             identifiers={(DOMAIN, self._attr_unique_id)},
             manufacturer="switchbot",
-            name=self._name,
             model="TV Remote",
         )
 
