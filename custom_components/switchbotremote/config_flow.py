@@ -25,9 +25,9 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 STEP_CONFIGURE_DEVICE = {
-    "Air Conditioner": vol.Schema({
-        vol.Optional("temperature_sensor"): str,
-        vol.Optional("umidity_sensor"): str,
+    "Air Conditioner": lambda x: vol.Schema({
+        vol.Optional("temperature_sensor", default=x.get("temperature_sensor")): str,
+        vol.Optional("umidity_sensor", default=x.get("umidity_sensor")): str,
     })
 }
 
@@ -80,7 +80,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for LocalTuya integration."""
 
-    def __init__(self, config_entry) -> None:
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize localtuya options flow."""
         self.config_entry = config_entry
         # self.dps_strings = config_entry.data.get(CONF_DPS_STRINGS, gen_dps_strings())
@@ -128,7 +128,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         schema = vol.Schema({})
         for remote in self.discovered_devices:
             if remote.id == self.selected_device and remote.type in STEP_CONFIGURE_DEVICE:
-                schema = STEP_CONFIGURE_DEVICE.get(remote.type)
+                schema = STEP_CONFIGURE_DEVICE[remote.type](
+                    self.config_entry.data[remote.id]
+                )
 
         return self.async_show_form(
             step_id="edit_device",
