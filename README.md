@@ -17,3 +17,7 @@ Restart Home Assistant
 
 The configuration variables that you need are your Switchbot Token and Secret, follow this [guide](https://github.com/OpenWonderLabs/SwitchBotAPI#getting-started) to get them.
 Then configure the integration via UI Config Flow.
+
+## Support
+
+If you like my work you can support me here: https://paypal.me/kirapc or just leaving a star to the repo.
