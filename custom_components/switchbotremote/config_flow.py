@@ -28,6 +28,9 @@ STEP_CONFIGURE_DEVICE = {
     "Air Conditioner": lambda x: vol.Schema({
         vol.Optional("temperature_sensor", default=x.get("temperature_sensor")): str,
         vol.Optional("umidity_sensor", default=x.get("umidity_sensor")): str,
+    }),
+    "TV": lambda x: vol.Schema({
+        vol.Optional("power_sensor", default=x.get("power_sensor")): str,
     })
 }
 
