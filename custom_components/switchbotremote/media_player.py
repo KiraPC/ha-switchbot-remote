@@ -156,9 +156,9 @@ async def async_setup_entry(
     def is_media_player(remote: SupportedRemote):
         return remote.type in ["TV", "IPTV", "Set Top Box"]
 
-    climates = [
+    media_player = [
         SwitchbotRemoteMediaPlayer(hass, remote, remote.id, remote.name, entry.data.get(remote.id, {}))
         for remote in filter(is_media_player, remotes)
     ]
 
-    async_add_entities(climates)
+    async_add_entities(media_player)
