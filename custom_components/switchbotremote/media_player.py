@@ -154,7 +154,7 @@ async def async_setup_entry(
     remotes = hass.data[DOMAIN][entry.entry_id]
 
     def is_media_player(remote: SupportedRemote):
-        return remote.type in ["TV", "IPTV", "Set Top Box"]
+        return remote.type.lower() in ["tv", "iptv", "set top box", "speaker"]
 
     media_player = [
         SwitchbotRemoteMediaPlayer(hass, remote, remote.id, remote.name, entry.data.get(remote.id, {}))

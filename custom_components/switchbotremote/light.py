@@ -1,3 +1,4 @@
+from typing import List
 from homeassistant.components.light import LightEntity
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.core import HomeAssistant
@@ -85,11 +86,11 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities
 ):
-    remotes = hass.data[DOMAIN][entry.entry_id]
+    remotes: List[SupportedRemote] = hass.data[DOMAIN][entry.entry_id]
 
     lights = [
         SwitchBotRemoteLight(hass, remote, remote.id, remote.name)
-        for remote in filter(lambda r: r.type == "Light", remotes)
+        for remote in filter(lambda r: "light" in r.type.lower(), remotes)
     ]
 
     async_add_entities(lights, update_before_add=True)
