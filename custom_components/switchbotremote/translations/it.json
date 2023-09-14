@@ -36,7 +36,8 @@
                 "title": "Configura dispositivo",
                 "data": {
                     "temperature_sensor": "ID sensore temperatura da utilizzare",
-                    "umidity_sensor": "ID sensore umidità da utilizzare"
+                    "umidity_sensor": "ID sensore umidità da utilizzare",
+					"power_sensor": "ID sensore per indicare se dispositivo è accesa o spenta"
                 }
             }
         }
