@@ -36,7 +36,7 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
             identifiers={(DOMAIN, self._unique_id)},
             manufacturer="SwitchBot",
             name=self._device_name,
-            model="Remote Light",
+            model="Light Remote",
         )
 
     @property

@@ -37,7 +37,7 @@
                 "data": {
                     "temperature_sensor": "temperature sensor ID to be used as air conditioner actual sensor",
                     "umidity_sensor": "himidity sensor ID to be used as air conditioner actual humidity",
-					"power_sensor": "power sensor ID to get device status"
+                    "power_sensor": "power sensor ID to get device status"
                 }
             }
         }
