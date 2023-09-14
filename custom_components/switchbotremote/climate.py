@@ -197,10 +197,11 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self._update_remote()
 
     def _update_remote(self):
-        self.sb.command(
-            "setAll",
-            f"{self.target_temperature},{HVAC_REMOTE_MODES[self.hvac_mode]},{FAN_REMOTE_MODES[self.fan_mode]},{self.power_state}",
-        )
+        if (self._hvac_mode != HVACMode.OFF):
+            self.sb.command(
+                "setAll",
+                f"{self.target_temperature},{HVAC_REMOTE_MODES[self.hvac_mode]},{FAN_REMOTE_MODES[self.fan_mode]},{self.power_state}",
+            )
 
     @callback
     def _async_update_temp(self, state):
