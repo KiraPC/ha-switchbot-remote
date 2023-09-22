@@ -5,7 +5,22 @@ An Home Assistant Custom Integration that interact via SwitchBot API to your Swi
 Supported device:
 
 * Air Conditionair
-* TV [on/off]
+* TV
+* IPTV
+* DVD
+* Speaker
+* Set Top Box
+* Fan
+* Light
+
+_All above devices support DIY types_
+
+ToDo:
+
+* Air Purifier
+* Water Heater
+* Vacuum Cleaner
+* Camera Shutter
 
 ## Installation
 
@@ -17,3 +32,7 @@ Restart Home Assistant
 
 The configuration variables that you need are your Switchbot Token and Secret, follow this [guide](https://github.com/OpenWonderLabs/SwitchBotAPI#getting-started) to get them.
 Then configure the integration via UI Config Flow.
+
+## Support
+
+If you like my work you can support me here: https://paypal.me/kirapc or just leaving a star to the repo.

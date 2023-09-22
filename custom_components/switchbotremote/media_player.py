@@ -15,6 +15,29 @@ from .const import DOMAIN
 
 LOGGER = logging.getLogger(__name__)
 
+IR_MEDIA_TYPES = [
+    'DIY TV',
+    'TV',
+    'DIY IPTV',
+    'IPTV',
+    'DIY DVD',
+    'DVD',
+    'DIY Speaker',
+    'Speaker',
+    'DIY Set Top Box',
+    'Set Top Box',
+]
+
+IR_TRACK_TYPES = [
+    'DIY DVD',
+    'DVD',
+    'DIY Speaker',
+    'Speaker',
+    'DIY Projector',
+    'Projector'
+]
+
+
 class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
     def __init__(self, hass: HomeAssistant, sb: SupportedRemote, _id: str, name: str, options: dict = {}) -> None:
         super().__init__()
@@ -36,9 +59,9 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
     def device_info(self):
         return DeviceInfo(
             identifiers={(DOMAIN, self._unique_id)},
-            manufacturer="switchbot",
+            manufacturer="SwitchBot",
             name=self._device_name,
-            model="TV Remote",
+            model="Media Remote",
         )
 
     async def async_added_to_hass(self):
@@ -94,12 +117,18 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
 
     async def async_media_previous_track(self):
         """Send previous track command."""
-        await self.send_command("channelSub")
+        if self.sb.type in IR_TRACK_TYPES:
+            await self.send_command("Previous")
+        else:
+            await self.send_command("channelSub")
         await self.async_update_ha_state()
 
     async def async_media_next_track(self):
         """Send next track command."""
-        await self.send_command("channelAdd")
+        if self.sb.type in IR_TRACK_TYPES:
+            await self.send_command("Next")
+        else:
+            await self.send_command("channelAdd")
         await self.async_update_ha_state()
 
     async def async_volume_down(self):
@@ -121,6 +150,11 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         """Support channel change through play_media service."""
         if self._state == STATE_OFF:
             await self.async_turn_on()
+
+        if self.sb.type in IR_TRACK_TYPES:
+            await self.send_command("Play")
+            await self.async_update_ha_state()
+            return
 
         if media_type != MEDIA_TYPE_CHANNEL:
             LOGGER.error("invalid media type")
@@ -153,12 +187,12 @@ async def async_setup_entry(
 ):
     remotes = hass.data[DOMAIN][entry.entry_id]
 
-    def is_media_player(remote: SupportedRemote):
-        return remote.type.lower() in ["tv", "iptv", "set top box", "speaker"]
-
-    media_player = [
-        SwitchbotRemoteMediaPlayer(hass, remote, remote.id, remote.name, entry.data.get(remote.id, {}))
-        for remote in filter(is_media_player, remotes)
+    entities = [
+        SwitchbotRemoteMediaPlayer(
+            hass, remote, remote.id, remote.name, entry.data.get(remote.id, {}))
+        for remote in filter(lambda r: r.type in IR_MEDIA_TYPES, remotes)
     ]
 
-    async_add_entities(media_player)
+    async_add_entities(entities)
+    
+    return True

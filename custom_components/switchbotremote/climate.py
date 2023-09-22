@@ -36,6 +36,11 @@ FAN_REMOTE_MODES = {
     FAN_HIGH: 4,
 }
 
+IR_CLIMATE_TYPES = [
+    'DIY Air Conditioner',
+    'Air Conditioner'
+]
+
 
 class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
     _attr_has_entity_name = False
@@ -89,7 +94,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
     def device_info(self):
         return DeviceInfo(
             identifiers={(DOMAIN, self._unique_id)},
-            manufacturer="switchbot",
+            manufacturer="SwitchBot",
             name=self._name,
             model="Air Conditioner",
         )
@@ -119,7 +124,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
     @property
     def hvac_mode(self) -> HVACMode:
         """Return hvac mode ie. heat, cool."""
-        return self._hvac_mode # type: ignore
+        return self._hvac_mode  # type: ignore
 
     @property
     def power_state(self):
@@ -192,10 +197,11 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self._update_remote()
 
     def _update_remote(self):
-        self.sb.command(
-            "setAll",
-            f"{self.target_temperature},{HVAC_REMOTE_MODES[self.hvac_mode]},{FAN_REMOTE_MODES[self.fan_mode]},{self.power_state}",
-        )
+        if (self._hvac_mode != HVACMode.OFF):
+            self.sb.command(
+                "setAll",
+                f"{self.target_temperature},{HVAC_REMOTE_MODES[self.hvac_mode]},{FAN_REMOTE_MODES[self.fan_mode]},{self.power_state}",
+            )
 
     @callback
     def _async_update_temp(self, state):
@@ -240,8 +246,10 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         if last_state is not None:
             self._hvac_mode = last_state.state
             self._fan_mode = last_state.attributes.get('fan_mode') or FAN_AUTO
-            self._target_temperature = last_state.attributes.get('temperature') or 28
-            self._last_on_operation = last_state.attributes.get('last_on_operation')
+            self._target_temperature = last_state.attributes.get(
+                'temperature') or 28
+            self._last_on_operation = last_state.attributes.get(
+                'last_on_operation')
 
         if self._temperature_sensor:
             async_track_state_change(self.hass, self._temperature_sensor,
@@ -265,11 +273,12 @@ async def async_setup_entry(
 ):
     remotes = hass.data[DOMAIN][entry.entry_id]
 
-    climates = [
-        SwitchBotRemoteClimate(remote, remote.id, remote.name, entry.data.get(remote.id, {}))
-        for remote in filter(lambda r: r.type == "Air Conditioner", remotes)
+    entities = [
+        SwitchBotRemoteClimate(
+            remote, remote.id, remote.name, entry.data.get(remote.id, {}))
+        for remote in filter(lambda r: r.type in IR_CLIMATE_TYPES, remotes)
     ]
 
-    async_add_entities(climates)
+    async_add_entities(entities)
 
     return True

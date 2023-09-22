@@ -24,12 +24,40 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+STEP_CONFIGURE_BY_DEVICE_TYPE = {
+    "DIY Air Conditioner": "Air Conditioner",
+    "Air Conditioner": "Air Conditioner",
+    
+	"DIY Fan": "Fan",
+    "Fan": "Fan",
+    
+	"DIY Light": "Light",
+    "Light": "Light",
+    
+	"DIY TV": "Media",
+    "TV": "Media",
+    "DIY IPTV": "Media",
+    "IPTV": "Media",
+    "DIY DVD": "Media",
+    "DVD": "Media",
+    "DIY Speaker": "Media",
+    "Speaker": "Media",
+    "DIY Set Top Box": "Media",
+    "Set Top Box": "Media",
+}
+
 STEP_CONFIGURE_DEVICE = {
     "Air Conditioner": lambda x: vol.Schema({
         vol.Optional("temperature_sensor", default=x.get("temperature_sensor")): str,
         vol.Optional("umidity_sensor", default=x.get("umidity_sensor")): str,
     }),
-    "TV": lambda x: vol.Schema({
+    "Media": lambda x: vol.Schema({
+        vol.Optional("power_sensor", default=x.get("power_sensor")): str,
+    }),
+    "Fan": lambda x: vol.Schema({
+        vol.Optional("power_sensor", default=x.get("power_sensor")): str,
+    }),
+    "Light": lambda x: vol.Schema({
         vol.Optional("power_sensor", default=x.get("power_sensor")): str,
     })
 }
@@ -130,8 +158,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         schema = vol.Schema({})
         for remote in self.discovered_devices:
-            if remote.id == self.selected_device and remote.type in STEP_CONFIGURE_DEVICE:
-                schema = STEP_CONFIGURE_DEVICE[remote.type](
+            if remote.id == self.selected_device and remote.type in STEP_CONFIGURE_BY_DEVICE_TYPE:
+                schema = STEP_CONFIGURE_DEVICE[STEP_CONFIGURE_BY_DEVICE_TYPE[remote.type]](
                     self.config_entry.data.get(remote.id, {})
                 )
 
