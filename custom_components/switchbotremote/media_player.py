@@ -1,68 +1,73 @@
 import logging
-from homeassistant.components.media_player import MediaPlayerEntity
+from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.components.media_player.const import (
-    SUPPORT_TURN_OFF, SUPPORT_TURN_ON, SUPPORT_PREVIOUS_TRACK,
-    SUPPORT_NEXT_TRACK, SUPPORT_VOLUME_STEP, SUPPORT_VOLUME_MUTE,
-    SUPPORT_PLAY_MEDIA, SUPPORT_SELECT_SOURCE, MEDIA_TYPE_CHANNEL)
-from homeassistant.const import STATE_OFF, STATE_ON
+from homeassistant.const import (
+    STATE_OFF,
+    STATE_ON,
+    STATE_IDLE,
+    STATE_PAUSED,
+    STATE_PLAYING,
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.event import async_track_state_change
 from .client.remote import SupportedRemote
 
-from .const import DOMAIN
+from .const import DOMAIN, MEDIA_CLASS, IR_MEDIA_TYPES, DIY_PROJECTOR_TYPE, PROJECTOR_TYPE
 
-LOGGER = logging.getLogger(__name__)
-
-IR_MEDIA_TYPES = [
-    'DIY TV',
-    'TV',
-    'DIY IPTV',
-    'IPTV',
-    'DIY DVD',
-    'DVD',
-    'DIY Speaker',
-    'Speaker',
-    'DIY Set Top Box',
-    'Set Top Box',
-]
+_LOGGER = logging.getLogger(__name__)
 
 IR_TRACK_TYPES = [
     'DIY DVD',
     'DVD',
     'DIY Speaker',
     'Speaker',
-    'DIY Projector',
-    'Projector'
 ]
 
+IR_PROJECTOR_TYPES = [
+    DIY_PROJECTOR_TYPE,
+    PROJECTOR_TYPE,
+]
 
 class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
-    def __init__(self, hass: HomeAssistant, sb: SupportedRemote, _id: str, name: str, options: dict = {}) -> None:
+    _attr_has_entity_name = False
+
+    def __init__(self, hass: HomeAssistant, sb: SupportedRemote, options: dict = {}) -> None:
         super().__init__()
-        self._hass = hass
         self.sb = sb
-        self._unique_id = _id
+        self._hass = hass
+        self._unique_id = sb.id
+        self._device_name = sb.name
         self._is_on = False
-        self._device_name = name
-        self._power_sensor = options.get("power_sensor", None)
         self._state = STATE_OFF
         self._source = None
 
-        self._support_flags = SUPPORT_TURN_OFF | SUPPORT_TURN_ON | SUPPORT_PREVIOUS_TRACK | SUPPORT_NEXT_TRACK | SUPPORT_VOLUME_STEP | SUPPORT_VOLUME_MUTE | SUPPORT_PLAY_MEDIA | SUPPORT_SELECT_SOURCE
+        self._power_sensor = options.get("power_sensor", None)
+
+        self._supported_features = MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
+        self._supported_features |= MediaPlayerEntityFeature.VOLUME_STEP
+        self._supported_features |= MediaPlayerEntityFeature.VOLUME_MUTE
+        self._supported_features |= MediaPlayerEntityFeature.PLAY_MEDIA
+
+        if (sb.type in IR_TRACK_TYPES):
+            self._supported_features |= MediaPlayerEntityFeature.PLAY
+            self._supported_features |= MediaPlayerEntityFeature.PAUSE
+            self._supported_features |= MediaPlayerEntityFeature.PREVIOUS_TRACK
+            self._supported_features |= MediaPlayerEntityFeature.NEXT_TRACK
+            self._supported_features |= MediaPlayerEntityFeature.STOP
+        elif (sb.type in IR_PROJECTOR_TYPES):
+            self._supported_features |= MediaPlayerEntityFeature.PLAY
+            self._supported_features |= MediaPlayerEntityFeature.PAUSE
+        else:
+            self._supported_features |= MediaPlayerEntityFeature.PREVIOUS_TRACK
+            self._supported_features |= MediaPlayerEntityFeature.NEXT_TRACK
+            self._supported_features |= MediaPlayerEntityFeature.SELECT_SOURCE
 
     async def send_command(self, *args):
         await self._hass.async_add_executor_job(self.sb.command, *args)
-
-    @property
-    def device_info(self):
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._unique_id)},
-            manufacturer="SwitchBot",
-            name=self._device_name,
-            model="Media Remote",
-        )
 
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
@@ -74,9 +79,23 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
             self._state = last_state.state
 
     @property
+    def device_info(self):
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._unique_id)},
+            manufacturer="SwitchBot",
+            name=self._device_name,
+            model=MEDIA_CLASS + " Remote",
+        )
+
+    @property
     def should_poll(self):
         """Push an update after each command."""
         return True
+
+    @property
+    def supported_features(self):
+        """Flag media player features that are supported."""
+        return self._supported_features
 
     @property
     def unique_id(self):
@@ -93,27 +112,21 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         """Return the state of the player."""
         return self._state
 
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        return self._support_flags
-
     async def async_turn_off(self):
         """Turn the media player off."""
         await self.send_command("turnOff")
 
-        if self._power_sensor is None:
-            self._state = STATE_OFF
-            self._source = None
-            await self.async_update_ha_state()
+        self._state = STATE_OFF
+        self._source = None
+
+        await self.async_update_ha_state()
 
     async def async_turn_on(self):
         """Turn the media player off."""
         await self.send_command("turnOn")
 
-        if self._power_sensor is None:
-            self._state = STATE_ON
-            await self.async_update_ha_state()
+        self._state = STATE_IDLE if self.sb.type in IR_TRACK_TYPES else STATE_ON
+        await self.async_update_ha_state()
 
     async def async_media_previous_track(self):
         """Send previous track command."""
@@ -125,6 +138,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
 
     async def async_media_next_track(self):
         """Send next track command."""
+        await self.send_command("Next")
         if self.sb.type in IR_TRACK_TYPES:
             await self.send_command("Next")
         else:
@@ -133,17 +147,63 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
 
     async def async_volume_down(self):
         """Turn volume down for media player."""
-        await self.send_command("volumeSub")
+        if self.sb.type in IR_PROJECTOR_TYPES:
+            await self.send_command("VOL-", None, True)
+        else:
+            await self.send_command("volumeSub")
+
         await self.async_update_ha_state()
 
     async def async_volume_up(self):
         """Turn volume up for media player."""
-        await self.send_command("volumeAdd")
+        if self.sb.type in IR_PROJECTOR_TYPES:
+            await self.send_command("VOL+", None, True)
+        else:
+            await self.send_command("volumeAdd")
+
         await self.async_update_ha_state()
 
     async def async_mute_volume(self, mute):
         """Mute the volume."""
-        await self.send_command("setMute")
+        if self.sb.type in IR_PROJECTOR_TYPES:
+            await self.send_command("MUTE", None, True)
+        else:
+            await self.send_command("setMute")
+
+        await self.async_update_ha_state()
+
+    async def async_media_play(self):
+        """Play/Resume media"""
+        self._state = STATE_PLAYING
+
+        if self.sb.type in IR_PROJECTOR_TYPES:
+            await self.send_command("PLAY", None, True)
+        else:
+            await self.send_command("Play")
+
+        await self.async_update_ha_state()
+
+    async def async_media_pause(self):
+        """Pause media"""
+        self._state = STATE_PAUSED
+
+        if self.sb.type in IR_PROJECTOR_TYPES:
+            await self.send_command("Paused", None, True)
+        else:
+            await self.send_command("Pause")
+
+        await self.async_update_ha_state()
+
+    async def async_media_play_pause(self):
+        """Play/Pause media"""
+        self._state = STATE_PLAYING
+        await self.send_command("Play")
+        await self.async_update_ha_state()
+
+    async def async_media_stop(self):
+        """Stop media"""
+        self._state = STATE_IDLE
+        await self.send_command("Stop")
         await self.async_update_ha_state()
 
     async def async_play_media(self, media_type, media_id, **kwargs):
@@ -151,16 +211,8 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         if self._state == STATE_OFF:
             await self.async_turn_on()
 
-        if self.sb.type in IR_TRACK_TYPES:
-            await self.send_command("Play")
-            await self.async_update_ha_state()
-            return
-
-        if media_type != MEDIA_TYPE_CHANNEL:
-            LOGGER.error("invalid media type")
-            return
         if not media_id.isdigit():
-            LOGGER.error("media_id must be a channel number")
+            _LOGGER.error("media_id must be a channel number")
             return
 
         self._source = "Channel {}".format(media_id)
@@ -168,31 +220,48 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
             await self.send_command("SetChannel", digit, True)
         await self.async_update_ha_state()
 
-    async def async_update(self):
-        if self._power_sensor is None:
+    @callback
+    def _async_update_power(self, state):
+        """Update thermostat with latest state from temperature sensor."""
+        try:
+            if state.state != STATE_UNKNOWN and state.state != STATE_UNAVAILABLE:
+                if state.state == STATE_OFF:
+                    self._state = STATE_OFF
+                    self._source = None
+                elif state.state == STATE_ON:
+                    self._state = STATE_IDLE if self.sb.type in IR_TRACK_TYPES else STATE_ON
+
+        except ValueError as ex:
+            _LOGGER.error("Unable to update from power sensor: %s", ex)
+
+    async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
+        """Handle power sensor changes."""
+        if new_state is None:
             return
 
-        power_state = self.hass.states.get(self._power_sensor)
+        self._async_update_power(new_state)
+        await self.async_update_ha_state()
 
-        if power_state:
-            if power_state.state == STATE_OFF:
-                self._state = STATE_OFF
-                self._source = None
-            elif power_state.state == STATE_ON:
-                self._state = STATE_ON
+    async def async_added_to_hass(self):
+        """Run when entity about to be added."""
+        await super().async_added_to_hass()
+
+        if self._power_sensor:
+            async_track_state_change(self.hass, self._power_sensor, self._async_power_sensor_changed)
+
+            power_sensor_state = self.hass.states.get(self._power_sensor)
+            if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:
+                self._async_update_power(power_sensor_state)
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
-):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> bool:
     remotes = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
-        SwitchbotRemoteMediaPlayer(
-            hass, remote, remote.id, remote.name, entry.data.get(remote.id, {}))
+        SwitchbotRemoteMediaPlayer(hass, remote, entry.data.get(remote.id, {}))
         for remote in filter(lambda r: r.type in IR_MEDIA_TYPES, remotes)
     ]
 
     async_add_entities(entities)
-    
+
     return True
