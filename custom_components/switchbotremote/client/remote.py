@@ -43,7 +43,7 @@ class Remote:
         payload = humps.camelize(
             {
                 "command_type": command_type,
-                "command": action if customize else humps.camelize(action),
+                "command": action,
                 "parameter": parameter,
             }
         )
@@ -60,7 +60,7 @@ class SupportedRemote(Remote):
     def turn(self, state: str):
         state = state.lower()
         assert state in ("on", "off")
-        self.command(f"turn_{state}")
+        self.command(humps.camelize(f"turn_{state}"))
 
 
 class OtherRemote(Remote):

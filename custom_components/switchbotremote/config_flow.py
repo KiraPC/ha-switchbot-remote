@@ -10,9 +10,22 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.selector import selector
 from .client import SwitchBot
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    CLASS_BY_TYPE,
+
+    AIR_CONDITIONER_CLASS,
+    FAN_CLASS,
+    LIGHT_CLASS,
+    MEDIA_CLASS,
+    CAMERA_CLASS,
+    VACUUM_CLASS,
+    WATER_HEATER_CLASS,
+    OTHERS_CLASS,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,42 +37,61 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
-STEP_CONFIGURE_BY_DEVICE_TYPE = {
-    "DIY Air Conditioner": "Air Conditioner",
-    "Air Conditioner": "Air Conditioner",
-    
-	"DIY Fan": "Fan",
-    "Fan": "Fan",
-    
-	"DIY Light": "Light",
-    "Light": "Light",
-    
-	"DIY TV": "Media",
-    "TV": "Media",
-    "DIY IPTV": "Media",
-    "IPTV": "Media",
-    "DIY DVD": "Media",
-    "DVD": "Media",
-    "DIY Speaker": "Media",
-    "Speaker": "Media",
-    "DIY Set Top Box": "Media",
-    "Set Top Box": "Media",
-}
-
+# TODO: Fix the entity selector default value or empty issue
 STEP_CONFIGURE_DEVICE = {
-    "Air Conditioner": lambda x: vol.Schema({
-        vol.Optional("temperature_sensor", default=x.get("temperature_sensor")): str,
-        vol.Optional("umidity_sensor", default=x.get("umidity_sensor")): str,
+    AIR_CONDITIONER_CLASS: lambda x: vol.Schema({
+        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
+        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
+        # selector({"entity": {"filter": {"domain": "sensor"}}})
+        vol.Optional("temperature_sensor", default=x.get("temperature_sensor", "")): str,
+        # selector({"entity": {"filter": {"domain": "sensor"}}})
+        vol.Optional("humidity_sensor", default=x.get("humidity_sensor", "")): str,
+        vol.Optional("temp_min", default=x.get("temp_min", 16)): int,
+        vol.Optional("temp_max", default=x.get("temp_max", 30)): int,
+        vol.Optional("temp_step", default=x.get("temp_step", 1.0)): selector({"number": {"min": 0.1, "max": 2.0, "step": 0.1, "mode": "slider"}}),
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
-    "Media": lambda x: vol.Schema({
-        vol.Optional("power_sensor", default=x.get("power_sensor")): str,
+    MEDIA_CLASS: lambda x: vol.Schema({
+        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
+        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
-    "Fan": lambda x: vol.Schema({
-        vol.Optional("power_sensor", default=x.get("power_sensor")): str,
+    FAN_CLASS: lambda x: vol.Schema({
+        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
+        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
+        vol.Optional("with_speed", default=x.get("with_speed", False)): bool,
+        vol.Optional("with_ion", default=x.get("with_ion", False)): bool,
+        vol.Optional("with_timer", default=x.get("with_timer", False)): bool,
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
-    "Light": lambda x: vol.Schema({
-        vol.Optional("power_sensor", default=x.get("power_sensor")): str,
-    })
+    LIGHT_CLASS: lambda x: vol.Schema({
+        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
+        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
+        vol.Optional("with_brightness", default=x.get("with_brightness", False)): bool,
+        vol.Optional("with_temperature", default=x.get("with_temperature", False)): bool,
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+    }),
+    CAMERA_CLASS: lambda x: vol.Schema({
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+    }),
+    VACUUM_CLASS: lambda x: vol.Schema({
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+    }),
+    WATER_HEATER_CLASS: lambda x: vol.Schema({
+        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
+        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
+        vol.Optional("temperature_sensor", default=x.get("temperature_sensor", "")): selector({"entity": {"filter": {"domain": "sensor"}}}),
+        vol.Optional("temp_min", default=x.get("temp_min", 40)): int,
+        vol.Optional("temp_max", default=x.get("temp_max", 65)): int,
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+    }),
+    OTHERS_CLASS: lambda x: vol.Schema({
+        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
+        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
+        vol.Optional("on_command", default=x.get("on_command", "")): str,
+        vol.Optional("off_command", default=x.get("off_command", "")): str,
+        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+    }),
 }
 
 
@@ -84,9 +116,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Get options flow for this handler."""
         return OptionsFlowHandler(config_entry)
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -109,23 +139,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle options flow for LocalTuya integration."""
+    """Handle options flow for SwitchBot integration."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize localtuya options flow."""
+        """Initialize SwitchBot options flow."""
         self.config_entry = config_entry
-        # self.dps_strings = config_entry.data.get(CONF_DPS_STRINGS, gen_dps_strings())
-        # self.entities = config_entry.data[CONF_ENTITIES]
+
         self.data = config_entry.data
-        self.sb = SwitchBot(token=self.data["token"], secret=self.data["secret"])
+        self.sb = SwitchBot(
+            token=self.data["token"], secret=self.data["secret"])
         self.discovered_devices = []
         self.selected_device = None
 
         self.entities = []
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Manage the options."""
         if user_input is not None:
             self.selected_device = user_input["selected_device"]
@@ -158,8 +186,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         schema = vol.Schema({})
         for remote in self.discovered_devices:
-            if remote.id == self.selected_device and remote.type in STEP_CONFIGURE_BY_DEVICE_TYPE:
-                schema = STEP_CONFIGURE_DEVICE[STEP_CONFIGURE_BY_DEVICE_TYPE[remote.type]](
+            if remote.id == self.selected_device and remote.type in CLASS_BY_TYPE:
+                schema = STEP_CONFIGURE_DEVICE[CLASS_BY_TYPE[remote.type]](
                     self.config_entry.data.get(remote.id, {})
                 )
 
@@ -167,6 +195,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             step_id="edit_device",
             data_schema=schema
         )
+
 
 class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
