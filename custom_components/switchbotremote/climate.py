@@ -16,7 +16,8 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from .client.remote import SupportedRemote
 
-from .const import (DOMAIN, IR_CLIMATE_TYPES, AIR_CONDITIONER_CLASS)
+from .const import DOMAIN, IR_CLIMATE_TYPES, AIR_CONDITIONER_CLASS
+from .config_flow import DEFAULT_HVAC_MODES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,13 +53,10 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self.options = options
 
         self._last_on_operation = None
-        self._operation_modes = [
-            HVACMode.OFF,
-            HVACMode.COOL,
-            HVACMode.DRY,
-            HVACMode.FAN_ONLY,
-            HVACMode.HEAT,
-        ]
+        self._operation_modes = options.get("hvac_modes", DEFAULT_HVAC_MODES)
+
+        if HVACMode.OFF not in self._operation_modes:
+            self._operation_modes.append(HVACMode.OFF)
 
         self._hvac_mode = HVACMode.OFF
 
@@ -282,10 +280,8 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         if last_state is not None:
             self._hvac_mode = last_state.state
             self._fan_mode = last_state.attributes.get('fan_mode') or FAN_AUTO
-            self._target_temperature = last_state.attributes.get(
-                'temperature') or 28
-            self._last_on_operation = last_state.attributes.get(
-                'last_on_operation')
+            self._target_temperature = last_state.attributes.get('temperature') or 28
+            self._last_on_operation = last_state.attributes.get('last_on_operation')
 
         if self._temperature_sensor:
             async_track_state_change(self.hass, self._temperature_sensor, self._async_temp_sensor_changed)

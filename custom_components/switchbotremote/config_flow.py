@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.selector import selector
+from homeassistant.components.climate.const import HVACMode
 from .client import SwitchBot
 
 from .const import (
@@ -26,6 +27,22 @@ from .const import (
     WATER_HEATER_CLASS,
     OTHERS_CLASS,
 )
+
+DEFAULT_HVAC_MODES = [
+    HVACMode.AUTO,
+    HVACMode.COOL,
+    HVACMode.DRY,
+    HVACMode.FAN_ONLY,
+    HVACMode.HEAT,
+]
+
+HVAC_MODES = [
+    {"label": "Auto", "value": HVACMode.AUTO},
+    {"label": "Cool", "value": HVACMode.COOL},
+    {"label": "Dry", "value": HVACMode.DRY},
+    {"label": "Fan Only", "value": HVACMode.FAN_ONLY},
+    {"label": "Heat", "value": HVACMode.HEAT},
+]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,6 +66,7 @@ STEP_CONFIGURE_DEVICE = {
         vol.Optional("temp_min", default=x.get("temp_min", 16)): int,
         vol.Optional("temp_max", default=x.get("temp_max", 30)): int,
         vol.Optional("temp_step", default=x.get("temp_step", 1.0)): selector({"number": {"min": 0.1, "max": 2.0, "step": 0.1, "mode": "slider"}}),
+        vol.Optional("hvac_modes", default=x.get("hvac_modes", DEFAULT_HVAC_MODES)): vol.All(selector({"select": {"multiple": True, "options": HVAC_MODES}})),
         vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     MEDIA_CLASS: lambda x: vol.Schema({
@@ -146,8 +164,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self.config_entry = config_entry
 
         self.data = config_entry.data
-        self.sb = SwitchBot(
-            token=self.data["token"], secret=self.data["secret"])
+        self.sb = SwitchBot(token=self.data["token"], secret=self.data["secret"])
         self.discovered_devices = []
         self.selected_device = None
 
@@ -168,10 +185,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         for remote in self.discovered_devices:
             devices[remote.id] = remote.name
 
-        return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema({vol.Required("selected_device"): vol.In(devices)})
-        )
+        return self.async_show_form(step_id="init", data_schema=vol.Schema({vol.Required("selected_device"): vol.In(devices)}))
 
     async def async_step_edit_device(self, user_input=None):
         """Handle editing a device."""

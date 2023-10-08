@@ -39,6 +39,7 @@
 					"humidity_sensor": "Humidity sensor ID to be used as air conditioner actual humidity",
 					"power_sensor": "Power sensor ID to get device status",
 					"customize_commands": "Button names (case sensitive)",
+					"hvac_modes": "Supported modes",
 					"temp_min": "Minimum temperature",
 					"temp_max": "Maximum temperature",
 					"temp_step": "Temperature step factor",

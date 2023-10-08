@@ -61,38 +61,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         customize_commands = options.get("customize_commands", "")
 
         if (remote.type in IR_CAMERA_TYPES):
-            entities.append(SwitchBotRemoteButton(
-                hass, remote, "SHUTTER", "mdi:camera-iris"))
-            entities.append(SwitchBotRemoteButton(
-                hass, remote, "MENU", "mdi:menu"))
-            entities.append(SwitchBotRemoteButton(
-                hass, remote, "TIMER", "mdi:timer"))
+            entities.append(SwitchBotRemoteButton(hass, remote, "SHUTTER", "mdi:camera-iris"))
+            entities.append(SwitchBotRemoteButton(hass, remote, "MENU", "mdi:menu"))
+            entities.append(SwitchBotRemoteButton(hass, remote, "TIMER", "mdi:timer"))
 
         if (remote.type in IR_FAN_TYPES):
             if (options.get("with_ion", False)):
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, "ION", "mdi:air-filter"))
+                entities.append(SwitchBotRemoteButton(hass, remote, "ION", "mdi:air-filter"))
             if (options.get("with_timer", False)):
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, "TIMER", "mdi:timer"))
+                entities.append(SwitchBotRemoteButton(hass, remote, "TIMER", "mdi:timer"))
 
         if (remote.type in IR_LIGHT_TYPES):
             if (options.get("with_brightness", False)):
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, "DARKER", "mdi:brightness-4"))
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, "BRIGHTER", "mdi:brightness-6"))
+                entities.append(SwitchBotRemoteButton(hass, remote, "DARKER", "mdi:brightness-4"))
+                entities.append(SwitchBotRemoteButton(hass, remote, "BRIGHTER", "mdi:brightness-6"))
 
             if (options.get("with_temperature", False)):
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, "WARM", "mdi:octagram-minus"))
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, "WHITE", "mdi:octagram-plus"))
+                entities.append(SwitchBotRemoteButton(hass, remote, "WARM", "mdi:octagram-minus"))
+                entities.append(SwitchBotRemoteButton(hass, remote, "WHITE", "mdi:octagram-plus"))
 
         for command in customize_commands:
             if (command and command.strip()):
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, command, "mdi:remote"))
+                entities.append(SwitchBotRemoteButton(hass, remote, command, "mdi:remote"))
 
     async_add_entities(entities)
 

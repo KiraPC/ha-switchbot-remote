@@ -12,8 +12,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change
 from .client.remote import SupportedRemote
 
-from .const import (DOMAIN, IR_FAN_TYPES, FAN_CLASS,
-                    AIR_PURIFIER_TYPE, DIY_AIR_PURIFIER_TYPE)
+from .const import DOMAIN, IR_FAN_TYPES, FAN_CLASS, AIR_PURIFIER_TYPE, DIY_AIR_PURIFIER_TYPE
 
 _LOGGER = logging.getLogger(__name__)
 
