@@ -1,44 +1,56 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Device is already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "name": "Nome dello switchbot hub - deve essere unico per installazione di homeassistant",
-                    "token": "Inserire il token da sviluppatore di switchbot",
-                    "secret": "Inserire il secret da sviluppatore di switchbot"
-                }
-            }
-        }
-    },
-    "options": {
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
-        "step": {
-            "init": {
-                "title": "Personalizza un dispositivo",
-                "description": "Scegli il dispositivo configurato che si desidera personalizzare.",
-                "data": {
-                    "selected_device": "Dispositivi configurati"
-                }
-            },
-            "edit_device": {
-                "title": "Configura dispositivo",
-                "data": {
-                    "temperature_sensor": "ID sensore temperatura da utilizzare",
-                    "umidity_sensor": "ID sensore umidità da utilizzare"
-                }
-            }
-        }
-    }
+	"config": {
+		"abort": {
+			"already_configured": "Device is already configured"
+		},
+		"error": {
+			"cannot_connect": "Failed to connect",
+			"invalid_auth": "Invalid authentication",
+			"unknown": "Unexpected error"
+		},
+		"step": {
+			"user": {
+				"data": {
+					"name": "Nome dello switchbot hub - deve essere unico per installazione di homeassistant",
+					"token": "Inserire il token da sviluppatore di switchbot",
+					"secret": "Inserire il secret da sviluppatore di switchbot"
+				}
+			}
+		}
+	},
+	"options": {
+		"error": {
+			"cannot_connect": "Failed to connect",
+			"invalid_auth": "Invalid authentication",
+			"unknown": "Unexpected error"
+		},
+		"step": {
+			"init": {
+				"title": "Personalizza un dispositivo",
+				"description": "Scegli il dispositivo configurato che si desidera personalizzare.",
+				"data": {
+					"selected_device": "Dispositivi configurati"
+				}
+			},
+			"edit_device": {
+				"title": "Configura dispositivo",
+				"data": {
+					"temperature_sensor": "ID sensore temperatura da utilizzare",
+					"humidity_sensor": "ID sensore umidità da utilizzare",
+					"power_sensor": "ID sensore per indicare se dispositivo è accesa o spenta",
+					"customize_commands": "Nomi dei pulsanti (maiuscole e minuscole)",
+					"temp_min": "Temperatura minima",
+					"temp_max": "Temperatura massima",
+					"temp_step": "Fattore di incremento della temperatura",
+					"with_speed": "Abilita velocità",
+					"with_ion": "Abilita il pulsante 'ION'",
+					"with_timer": "Abilita il pulsante 'Timer'",
+					"with_brightness": "Abilita i pulsanti di controllo della luminosità",
+					"with_temperature": "Abilita i pulsanti colorati della temperatura",
+					"on_command": "Nome del pulsante di accensione/spegnimento",
+					"off_command": "Nome del pulsante Off in caso di funzionamento indipendente"
+				}
+			}
+		}
+	}
 }

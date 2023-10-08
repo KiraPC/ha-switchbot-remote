@@ -8,7 +8,16 @@ from .client import SwitchBot
 
 from .const import DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.REMOTE]
+PLATFORMS: list[Platform] = [
+    Platform.CLIMATE,
+    Platform.MEDIA_PLAYER,
+    Platform.LIGHT,
+    Platform.FAN,
+    Platform.BUTTON,
+    Platform.VACUUM,
+    Platform.REMOTE,
+    Platform.WATER_HEATER,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -25,9 +34,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     return True
 
+
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry):
     """Update listener."""
     await hass.config_entries.async_reload(entry.entry_id)
+
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
