@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON
 from .client.remote import SupportedRemote
 
-from .const import (DOMAIN, IR_LIGHT_TYPES, LIGHT_CLASS)
+from .const import DOMAIN, IR_LIGHT_TYPES, LIGHT_CLASS
 
 _LOGGER = logging.getLogger(__name__)
 
