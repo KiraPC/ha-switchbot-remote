@@ -1,0 +1,57 @@
+{
+	"config": {
+		"abort": {
+			"already_configured": "El dispositivo ya está configurado"
+		},
+		"error": {
+			"cannot_connect": "No se pudo conectar",
+			"invalid_auth": "Autenticación no válida",
+			"unknown": "Error inesperado"
+		},
+		"step": {
+			"user": {
+				"data": {
+					"name": "Nombre del Switchbot Hub: debe ser único para cada aplicación de Homeassistant",
+					"token": "Inserta tu token de desarrollador de SwitchBot",
+					"secret": "Inserta tu código de desarrollador de SwitchBot"
+				}
+			}
+		}
+	},
+	"options": {
+		"error": {
+			"cannot_connect": "No se pudo conectar",
+			"invalid_auth": "Autenticación no válida",
+			"unknown": "Error inesperado"
+		},
+		"step": {
+			"init": {
+				"title": "Personalizar dispositivo",
+				"description": "Elija el dispositivo configurado que desea editar.",
+				"data": {
+					"selected_device": "Dispositivos descubiertos"
+				}
+			},
+			"edit_device": {
+				"title": "Configurar dispositivo",
+				"data": {
+					"temperature_sensor": "ID del sensor de temperatura que se utilizará como sensor real del aire acondicionado",
+					"humidity_sensor": "ID del sensor de humedad que se utilizará como humedad real del aire acondicionado",
+					"power_sensor": "ID del sensor de encendido para obtener el estado del dispositivo",
+					"customize_commands": "Nombre de botones (distingue mayúsculas y minúsculas)",
+					"hvac_modes": "Modos soportados",
+					"temp_min": "Temperatura mínima",
+					"temp_max": "Temperatura máxima",
+					"temp_step": "Factor de pasos en temperatura",
+					"with_speed": "Habilitar velocidades",
+					"with_ion": "Habilitar boton de 'ION'",
+					"with_timer": "Habilitar boton de 'Timer'",
+					"with_brightness": "Habilitar botones de control brillo",
+					"with_temperature": "Habilitar botones de color de temperatura",
+					"on_command": "Nombre del botón On/Off",
+					"off_command": "Nombre del botón Off en caso de accionar independiente"
+				}
+			}
+		}
+	}
+}

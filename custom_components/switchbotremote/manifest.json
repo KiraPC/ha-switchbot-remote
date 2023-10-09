@@ -1,13 +1,18 @@
 {
-  "domain": "switchbotremote",
-  "name": "SwitchBot Remote IR",
-  "codeowners": [
-    "@KiraPC"
-  ],
-  "config_flow": true,
-  "dependencies": [],
-  "documentation": "https://www.home-assistant.io/integrations/switchbotremote",
-  "iot_class": "cloud_push",
-  "requirements": ["pyhumps"],
-  "version": "0.0.1-alfa.2"
+	"domain": "switchbotremote",
+	"name": "SwitchBot Remote IR",
+	"codeowners": [
+		"@KiraPC",
+		"@joshepw"
+	],
+	"dependencies": [],
+	"integration_type": "hub",
+	"config_flow": true,
+	"documentation": "https://github.com/KiraPC/ha-switchbot-remote#readme",
+	"issue_tracker": "https://github.com/KiraPC/ha-switchbot-remote/issues",
+	"iot_class": "cloud_push",
+	"requirements": [
+		"pyhumps"
+	],
+	"version": "1.0.0"
 }
