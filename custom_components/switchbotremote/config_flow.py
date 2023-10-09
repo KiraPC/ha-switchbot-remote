@@ -26,6 +26,22 @@ from .const import (
     VACUUM_CLASS,
     WATER_HEATER_CLASS,
     OTHERS_CLASS,
+
+    CONF_POWER_SENSOR,
+    CONF_TEMPERATURE_SENSOR,
+    CONF_HUMIDITY_SENSOR,
+    CONF_TEMP_MIN,
+    CONF_TEMP_MAX,
+    CONF_TEMP_STEP,
+    CONF_HVAC_MODES,
+    CONF_CUSTOMIZE_COMMANDS,
+    CONF_WITH_SPEED,
+    CONF_WITH_ION,
+    CONF_WITH_TIMER,
+    CONF_WITH_BRIGHTNESS,
+    CONF_WITH_TEMPERATURE,
+    CONF_ON_COMMAND,
+    CONF_OFF_COMMAND,
 )
 
 DEFAULT_HVAC_MODES = [
@@ -34,14 +50,16 @@ DEFAULT_HVAC_MODES = [
     HVACMode.DRY,
     HVACMode.FAN_ONLY,
     HVACMode.HEAT,
+    HVACMode.OFF,
 ]
 
 HVAC_MODES = [
-    {"label": "Auto", "value": HVACMode.AUTO},
-    {"label": "Cool", "value": HVACMode.COOL},
-    {"label": "Dry", "value": HVACMode.DRY},
-    {"label": "Fan Only", "value": HVACMode.FAN_ONLY},
-    {"label": "Heat", "value": HVACMode.HEAT},
+    {"label": "Auto", "value": str(HVACMode.AUTO)},
+    {"label": "Cool", "value": str(HVACMode.COOL)},
+    {"label": "Dry", "value": str(HVACMode.DRY)},
+    {"label": "Fan Only", "value": str(HVACMode.FAN_ONLY)},
+    {"label": "Heat", "value": str(HVACMode.HEAT)},
+    {"label": "Off", "value": str(HVACMode.OFF)},
 ]
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,61 +72,52 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
-# TODO: Fix the entity selector default value or empty issue
 STEP_CONFIGURE_DEVICE = {
     AIR_CONDITIONER_CLASS: lambda x: vol.Schema({
-        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
-        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
-        # selector({"entity": {"filter": {"domain": "sensor"}}})
-        vol.Optional("temperature_sensor", default=x.get("temperature_sensor", "")): str,
-        # selector({"entity": {"filter": {"domain": "sensor"}}})
-        vol.Optional("humidity_sensor", default=x.get("humidity_sensor", "")): str,
-        vol.Optional("temp_min", default=x.get("temp_min", 16)): int,
-        vol.Optional("temp_max", default=x.get("temp_max", 30)): int,
-        vol.Optional("temp_step", default=x.get("temp_step", 1.0)): selector({"number": {"min": 0.1, "max": 2.0, "step": 0.1, "mode": "slider"}}),
-        vol.Optional("hvac_modes", default=x.get("hvac_modes", DEFAULT_HVAC_MODES)): vol.All(selector({"select": {"multiple": True, "options": HVAC_MODES}})),
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
+        vol.Optional(CONF_TEMPERATURE_SENSOR, description={"suggested_value": x.get(CONF_TEMPERATURE_SENSOR)}): selector({"entity": {"filter": {"domain": "sensor"}}}),
+        vol.Optional(CONF_HUMIDITY_SENSOR, description={"suggested_value": x.get(CONF_HUMIDITY_SENSOR)}): selector({"entity": {"filter": {"domain": "sensor"}}}),
+        vol.Optional(CONF_TEMP_MIN, default=x.get(CONF_TEMP_MIN, 16)): int,
+        vol.Optional(CONF_TEMP_MAX, default=x.get(CONF_TEMP_MAX, 30)): int,
+        vol.Optional(CONF_TEMP_STEP, default=x.get(CONF_TEMP_STEP, 1.0)): selector({"number": {"min": 0.1, "max": 2.0, "step": 0.1, "mode": "slider"}}),
+        vol.Optional(CONF_HVAC_MODES, description={"suggested_value": x.get(CONF_HVAC_MODES, DEFAULT_HVAC_MODES)}): vol.All(selector({"select": {"multiple": True, "options": HVAC_MODES}})),
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     MEDIA_CLASS: lambda x: vol.Schema({
-        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
-        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     FAN_CLASS: lambda x: vol.Schema({
-        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
-        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
-        vol.Optional("with_speed", default=x.get("with_speed", False)): bool,
-        vol.Optional("with_ion", default=x.get("with_ion", False)): bool,
-        vol.Optional("with_timer", default=x.get("with_timer", False)): bool,
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
+        vol.Optional(CONF_WITH_SPEED, default=x.get(CONF_WITH_SPEED, False)): bool,
+        vol.Optional(CONF_WITH_ION, default=x.get(CONF_WITH_ION, False)): bool,
+        vol.Optional(CONF_WITH_TIMER, default=x.get(CONF_WITH_TIMER, False)): bool,
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     LIGHT_CLASS: lambda x: vol.Schema({
-        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
-        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
-        vol.Optional("with_brightness", default=x.get("with_brightness", False)): bool,
-        vol.Optional("with_temperature", default=x.get("with_temperature", False)): bool,
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
+        vol.Optional(CONF_WITH_BRIGHTNESS, default=x.get(CONF_WITH_BRIGHTNESS, False)): bool,
+        vol.Optional(CONF_WITH_TEMPERATURE, default=x.get(CONF_WITH_TEMPERATURE, False)): bool,
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     CAMERA_CLASS: lambda x: vol.Schema({
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     VACUUM_CLASS: lambda x: vol.Schema({
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     WATER_HEATER_CLASS: lambda x: vol.Schema({
-        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
-        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
-        vol.Optional("temperature_sensor", default=x.get("temperature_sensor", "")): selector({"entity": {"filter": {"domain": "sensor"}}}),
-        vol.Optional("temp_min", default=x.get("temp_min", 40)): int,
-        vol.Optional("temp_max", default=x.get("temp_max", 65)): int,
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
+        vol.Optional(CONF_TEMPERATURE_SENSOR, description={"suggested_value": x.get(CONF_TEMPERATURE_SENSOR)}): selector({"entity": {"filter": {"domain": "sensor"}}}),
+        vol.Optional(CONF_TEMP_MIN, default=x.get(CONF_TEMP_MIN, 40)): int,
+        vol.Optional(CONF_TEMP_MAX, default=x.get(CONF_TEMP_MAX, 65)): int,
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     OTHERS_CLASS: lambda x: vol.Schema({
-        # selector({"entity": {"filter": {"domain": ["binary_sensor","input_boolean","light","sensor","switch"]}}})
-        vol.Optional("power_sensor", default=x.get("power_sensor", "")): str,
-        vol.Optional("on_command", default=x.get("on_command", "")): str,
-        vol.Optional("off_command", default=x.get("off_command", "")): str,
-        vol.Optional("customize_commands", default=x.get("customize_commands", [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
+        vol.Optional(CONF_ON_COMMAND, default=x.get(CONF_ON_COMMAND, "")): str,
+        vol.Optional(CONF_OFF_COMMAND, default=x.get(CONF_OFF_COMMAND, "")): str,
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
 }
 
@@ -164,7 +173,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self.config_entry = config_entry
 
         self.data = config_entry.data
-        self.sb = SwitchBot(token=self.data["token"], secret=self.data["secret"])
+        self.sb = SwitchBot(
+            token=self.data["token"], secret=self.data["secret"])
         self.discovered_devices = []
         self.selected_device = None
 
@@ -201,9 +211,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         schema = vol.Schema({})
         for remote in self.discovered_devices:
             if remote.id == self.selected_device and remote.type in CLASS_BY_TYPE:
+                config = self.config_entry.data.get(remote.id, {})
                 schema = STEP_CONFIGURE_DEVICE[CLASS_BY_TYPE[remote.type]](
-                    self.config_entry.data.get(remote.id, {})
-                )
+                    config)
 
         return self.async_show_form(
             step_id="edit_device",

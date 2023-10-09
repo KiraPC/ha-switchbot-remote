@@ -16,7 +16,18 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from .client.remote import SupportedRemote
 
-from .const import DOMAIN, IR_CLIMATE_TYPES, AIR_CONDITIONER_CLASS
+from .const import (
+    DOMAIN,
+    IR_CLIMATE_TYPES,
+    AIR_CONDITIONER_CLASS,
+    CONF_POWER_SENSOR,
+    CONF_TEMPERATURE_SENSOR,
+    CONF_HUMIDITY_SENSOR,
+    CONF_TEMP_MIN,
+    CONF_TEMP_MAX,
+    CONF_TEMP_STEP,
+    CONF_HVAC_MODES,
+)
 from .config_flow import DEFAULT_HVAC_MODES
 
 _LOGGER = logging.getLogger(__name__)
@@ -43,6 +54,7 @@ DEFAULT_MAX_TEMP = 30
 
 class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
     _attr_has_entity_name = False
+    _attr_force_update = True
 
     def __init__(self, sb: SupportedRemote, options: dict = {}) -> None:
         super().__init__()
@@ -53,7 +65,8 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self.options = options
 
         self._last_on_operation = None
-        self._operation_modes = options.get("hvac_modes", DEFAULT_HVAC_MODES)
+        self._operation_modes = options.get(
+            CONF_HVAC_MODES, DEFAULT_HVAC_MODES)
 
         if HVACMode.OFF not in self._operation_modes:
             self._operation_modes.append(HVACMode.OFF)
@@ -62,10 +75,10 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
 
         self._temperature_unit = TEMP_CELSIUS
         self._target_temperature = 28
-        self._target_temperature_step = options.get("temp_step", 1)
-        self._max_temp = options.get("temp_max", DEFAULT_MAX_TEMP)
-        self._min_temp = options.get("temp_min", DEFAULT_MIN_TEMP)
-        self._power_sensor = options.get("power_sensor", None)
+        self._target_temperature_step = options.get(CONF_TEMP_STEP, 1)
+        self._max_temp = options.get(CONF_TEMP_MAX, DEFAULT_MAX_TEMP)
+        self._min_temp = options.get(CONF_TEMP_MIN, DEFAULT_MIN_TEMP)
+        self._power_sensor = options.get(CONF_POWER_SENSOR, None)
 
         self._fan_mode = FAN_AUTO
         self._fan_modes = [
@@ -77,8 +90,8 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
 
         self._supported_features = ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
 
-        self._temperature_sensor = options.get("temperature_sensor", None)
-        self._humidity_sensor = options.get("humidity_sensor", None)
+        self._temperature_sensor = options.get(CONF_TEMPERATURE_SENSOR, None)
+        self._humidity_sensor = options.get(CONF_HUMIDITY_SENSOR, None)
         self._current_temperature = None
         self._current_humidity = None
 
@@ -280,25 +293,30 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         if last_state is not None:
             self._hvac_mode = last_state.state
             self._fan_mode = last_state.attributes.get('fan_mode') or FAN_AUTO
-            self._target_temperature = last_state.attributes.get('temperature') or 28
-            self._last_on_operation = last_state.attributes.get('last_on_operation')
+            self._target_temperature = last_state.attributes.get(
+                'temperature') or 28
+            self._last_on_operation = last_state.attributes.get(
+                'last_on_operation')
 
         if self._temperature_sensor:
-            async_track_state_change(self.hass, self._temperature_sensor, self._async_temp_sensor_changed)
+            async_track_state_change(
+                self.hass, self._temperature_sensor, self._async_temp_sensor_changed)
 
             temp_sensor_state = self.hass.states.get(self._temperature_sensor)
             if temp_sensor_state and temp_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_temp(temp_sensor_state)
 
         if self._humidity_sensor:
-            async_track_state_change(self.hass, self._humidity_sensor, self._async_humidity_sensor_changed)
+            async_track_state_change(
+                self.hass, self._humidity_sensor, self._async_humidity_sensor_changed)
 
             humidity_sensor_state = self.hass.states.get(self._humidity_sensor)
             if humidity_sensor_state and humidity_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_humidity(humidity_sensor_state)
 
         if self._power_sensor:
-            async_track_state_change(self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change(
+                self.hass, self._power_sensor, self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:
