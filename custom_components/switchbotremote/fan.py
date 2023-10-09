@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change
 from .client.remote import SupportedRemote
 
-from .const import DOMAIN, IR_FAN_TYPES, FAN_CLASS, AIR_PURIFIER_TYPE, DIY_AIR_PURIFIER_TYPE
+from .const import DOMAIN, IR_FAN_TYPES, FAN_CLASS, AIR_PURIFIER_TYPE, DIY_AIR_PURIFIER_TYPE, CONF_WITH_SPEED, CONF_POWER_SENSOR
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,9 +50,9 @@ class SwitchBotRemoteFan(FanEntity, RestoreEntity):
         self._speed = AIR_PURIFIER_SPEED_COMMANDS[0] if sb.type in IR_AIR_PURIFIER_TYPES else SPEED_COMMANDS[0]
         self._supported_features = 0
 
-        self._power_sensor = options.get("power_sensor", None)
+        self._power_sensor = options.get(CONF_POWER_SENSOR, None)
 
-        if options.get("with_speed", None):
+        if options.get(CONF_WITH_SPEED, None):
             self._supported_features = FanEntityFeature.SET_SPEED
 
         if sb.type not in IR_AIR_PURIFIER_TYPES:
@@ -110,7 +110,8 @@ class SwitchBotRemoteFan(FanEntity, RestoreEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the speed of the fan, as a percentage."""
-        speed = percentage_to_ordered_list_item(AIR_PURIFIER_SPEED_COMMANDS if self.sb.type in IR_AIR_PURIFIER_TYPES else SPEED_COMMANDS, percentage)
+        speed = percentage_to_ordered_list_item(
+            AIR_PURIFIER_SPEED_COMMANDS if self.sb.type in IR_AIR_PURIFIER_TYPES else SPEED_COMMANDS, percentage)
         await self.send_command(speed)
         self._speed = speed
 
@@ -157,7 +158,8 @@ class SwitchBotRemoteFan(FanEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         if self._power_sensor:
-            async_track_state_change(self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change(
+                self.hass, self._power_sensor, self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:

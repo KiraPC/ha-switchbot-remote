@@ -9,9 +9,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON
 from .client.remote import SupportedRemote
 
-from .const import DOMAIN, IR_LIGHT_TYPES, LIGHT_CLASS
+from .const import DOMAIN, IR_LIGHT_TYPES, LIGHT_CLASS, CONF_POWER_SENSOR
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class SwitchBotRemoteLight(LightEntity, RestoreEntity):
     _attr_has_entity_name = False
@@ -25,7 +26,7 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
         self._state = STATE_OFF
         self._brightness = None
 
-        self._power_sensor = options.get("power_sensor", None)
+        self._power_sensor = options.get(CONF_POWER_SENSOR, None)
 
     async def send_command(self, *args):
         await self._hass.async_add_executor_job(self.sb.command, *args)
@@ -111,7 +112,8 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         if self._power_sensor:
-            async_track_state_change(self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change(
+                self.hass, self._power_sensor, self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:

@@ -3,6 +3,22 @@ from enum import IntFlag, StrEnum
 
 DOMAIN = "switchbotremote"
 
+CONF_POWER_SENSOR = "power_sensor"
+CONF_TEMPERATURE_SENSOR = "temperature_sensor"
+CONF_HUMIDITY_SENSOR = "humidity_sensor"
+CONF_TEMP_MIN = "temp_min"
+CONF_TEMP_MAX = "temp_max"
+CONF_TEMP_STEP = "temp_step"
+CONF_HVAC_MODES = "hvac_modes"
+CONF_CUSTOMIZE_COMMANDS = "customize_commands"
+CONF_WITH_SPEED = "with_speed"
+CONF_WITH_ION = "with_ion"
+CONF_WITH_TIMER = "with_timer"
+CONF_WITH_BRIGHTNESS = "with_brightness"
+CONF_WITH_TEMPERATURE = "with_temperature"
+CONF_ON_COMMAND = "on_command"
+CONF_OFF_COMMAND = "off_command"
+
 """Supported Devices"""
 DIY_AIR_CONDITIONER_TYPE = "DIY Air Conditioner"
 AIR_CONDITIONER_TYPE = "Air Conditioner"
