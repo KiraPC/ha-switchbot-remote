@@ -108,7 +108,7 @@ STEP_CONFIGURE_DEVICE = {
     }),
     WATER_HEATER_CLASS: lambda x: vol.Schema({
         vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
-        vol.Optional(CONF_TEMPERATURE_SENSOR, default=x.get(CONF_TEMPERATURE_SENSOR, "")): selector({"entity": {"filter": {"domain": "sensor"}}}),
+        vol.Optional(CONF_TEMPERATURE_SENSOR, description={"suggested_value": x.get(CONF_TEMPERATURE_SENSOR)}): selector({"entity": {"filter": {"domain": "sensor"}}}),
         vol.Optional(CONF_TEMP_MIN, default=x.get(CONF_TEMP_MIN, 40)): int,
         vol.Optional(CONF_TEMP_MAX, default=x.get(CONF_TEMP_MAX, 65)): int,
         vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
