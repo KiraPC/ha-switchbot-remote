@@ -6,7 +6,19 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
 from .client.remote import SupportedRemote
 
-from .const import DOMAIN, IR_CAMERA_TYPES, IR_FAN_TYPES, IR_LIGHT_TYPES, CLASS_BY_TYPE
+from .const import (
+    DOMAIN,
+    IR_CAMERA_TYPES,
+    IR_FAN_TYPES,
+    IR_LIGHT_TYPES,
+    CLASS_BY_TYPE,
+    CONF_CUSTOMIZE_COMMANDS,
+    CONF_WITH_ION,
+    CONF_WITH_TIMER,
+    CONF_WITH_BRIGHTNESS,
+    CONF_WITH_TEMPERATURE,
+)
+
 
 class SwitchBotRemoteButton(ButtonEntity):
     _attr_has_entity_name = False
@@ -58,7 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     for remote in remotes:
         options = entry.data.get(remote.id, {})
-        customize_commands = options.get("customize_commands", "")
+        customize_commands = options.get(CONF_CUSTOMIZE_COMMANDS, [])
 
         if (remote.type in IR_CAMERA_TYPES):
             entities.append(SwitchBotRemoteButton(
@@ -69,21 +81,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
                 hass, remote, "TIMER", "mdi:timer"))
 
         if (remote.type in IR_FAN_TYPES):
-            if (options.get("with_ion", False)):
+            if (options.get(CONF_WITH_ION, False)):
                 entities.append(SwitchBotRemoteButton(
                     hass, remote, "ION", "mdi:air-filter"))
-            if (options.get("with_timer", False)):
+            if (options.get(CONF_WITH_TIMER, False)):
                 entities.append(SwitchBotRemoteButton(
                     hass, remote, "TIMER", "mdi:timer"))
 
         if (remote.type in IR_LIGHT_TYPES):
-            if (options.get("with_brightness", False)):
+            if (options.get(CONF_WITH_BRIGHTNESS, False)):
                 entities.append(SwitchBotRemoteButton(
                     hass, remote, "DARKER", "mdi:brightness-4"))
                 entities.append(SwitchBotRemoteButton(
                     hass, remote, "BRIGHTER", "mdi:brightness-6"))
 
-            if (options.get("with_temperature", False)):
+            if (options.get(CONF_WITH_TEMPERATURE, False)):
                 entities.append(SwitchBotRemoteButton(
                     hass, remote, "WARM", "mdi:octagram-minus"))
                 entities.append(SwitchBotRemoteButton(

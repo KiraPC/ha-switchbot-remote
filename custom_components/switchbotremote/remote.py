@@ -9,9 +9,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON
 from .client.remote import SupportedRemote
 
-from .const import DOMAIN, OTHERS_TYPE, CLASS_BY_TYPE
+from .const import DOMAIN, OTHERS_TYPE, CLASS_BY_TYPE, CONF_POWER_SENSOR, CONF_ON_COMMAND, CONF_OFF_COMMAND
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class SwitchBotRemoteOther(RemoteEntity, RestoreEntity):
     _attr_has_entity_name = False
@@ -23,9 +24,9 @@ class SwitchBotRemoteOther(RemoteEntity, RestoreEntity):
         self._attr_unique_id = sb.id
         self._is_on = False
 
-        self._power_sensor = options.get("power_sensor", None)
-        self._on_command = options.get("on_command", None)
-        self._off_command = options.get("off_command", None)
+        self._power_sensor = options.get(CONF_POWER_SENSOR, None)
+        self._on_command = options.get(CONF_ON_COMMAND, None)
+        self._off_command = options.get(CONF_OFF_COMMAND, None)
 
     @property
     def device_info(self):
@@ -79,7 +80,8 @@ class SwitchBotRemoteOther(RemoteEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         if self._power_sensor:
-            async_track_state_change(self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change(
+                self.hass, self._power_sensor, self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:

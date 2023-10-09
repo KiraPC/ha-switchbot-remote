@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change
 from .client.remote import SupportedRemote
 
-from .const import DOMAIN, MEDIA_CLASS, IR_MEDIA_TYPES, DIY_PROJECTOR_TYPE, PROJECTOR_TYPE
+from .const import DOMAIN, MEDIA_CLASS, IR_MEDIA_TYPES, DIY_PROJECTOR_TYPE, PROJECTOR_TYPE, CONF_POWER_SENSOR
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +32,7 @@ IR_PROJECTOR_TYPES = [
     PROJECTOR_TYPE,
 ]
 
+
 class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
     _attr_has_entity_name = False
 
@@ -45,7 +46,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         self._state = STATE_OFF
         self._source = None
 
-        self._power_sensor = options.get("power_sensor", None)
+        self._power_sensor = options.get(CONF_POWER_SENSOR, None)
 
         self._supported_features = MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
         self._supported_features |= MediaPlayerEntityFeature.VOLUME_STEP
@@ -247,7 +248,8 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         if self._power_sensor:
-            async_track_state_change(self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change(
+                self.hass, self._power_sensor, self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:

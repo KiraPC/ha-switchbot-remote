@@ -1,3 +1,4 @@
+from .const import DOMAIN, WATER_HEATER_CLASS, IR_WATER_HEATER_TYPES, CONF_POWER_SENSOR, CONF_TEMPERATURE_SENSOR, CONF_TEMP_MAX, CONF_TEMP_MIN
 import logging
 from typing import List
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature, STATE_HEAT_PUMP
@@ -11,10 +12,10 @@ from .client.remote import SupportedRemote
 
 _LOGGER = logging.getLogger(__name__)
 
-from .const import DOMAIN, WATER_HEATER_CLASS, IR_WATER_HEATER_TYPES
 
 DEFAULT_MIN_TEMP = 40
 DEFAULT_MAX_TEMP = 65
+
 
 class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
     _attr_has_entity_name = False
@@ -31,10 +32,10 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
         self._supported_features = WaterHeaterEntityFeature.OPERATION_MODE
 
         self._current_temperature = None
-        self._power_sensor = options.get("power_sensor", None)
-        self._temperature_sensor = options.get("temperature_sensor", None)
-        self._max_temp = options.get("temp_max", DEFAULT_MAX_TEMP)
-        self._min_temp = options.get("temp_min", DEFAULT_MIN_TEMP)
+        self._power_sensor = options.get(CONF_POWER_SENSOR, None)
+        self._temperature_sensor = options.get(CONF_TEMPERATURE_SENSOR, None)
+        self._max_temp = options.get(CONF_TEMP_MAX, DEFAULT_MAX_TEMP)
+        self._min_temp = options.get(CONF_TEMP_MIN, DEFAULT_MIN_TEMP)
 
     @property
     def device_info(self):
@@ -148,14 +149,16 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         if self._temperature_sensor:
-            async_track_state_change(self.hass, self._temperature_sensor, self._async_temp_sensor_changed)
+            async_track_state_change(
+                self.hass, self._temperature_sensor, self._async_temp_sensor_changed)
 
             temp_sensor_state = self.hass.states.get(self._temperature_sensor)
             if temp_sensor_state and temp_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_temp(temp_sensor_state)
 
         if self._power_sensor:
-            async_track_state_change(self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change(
+                self.hass, self._power_sensor, self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:
