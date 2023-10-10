@@ -49,7 +49,8 @@
 					"with_brightness": "Enable brightness control buttons",
 					"with_temperature": "Enable temperature color buttons",
 					"on_command": "On/Off button name",
-					"off_command": "Name of the Off button in case of independent operation"
+					"off_command": "Name of the Off button in case of independent operation",
+					"override_off_command": "Override the native 'off' command"
 				}
 			}
 		}
