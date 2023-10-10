@@ -27,6 +27,7 @@ from .const import (
     CONF_TEMP_MAX,
     CONF_TEMP_STEP,
     CONF_HVAC_MODES,
+    CONF_OVERRIDE_OFF_COMMAND,
 )
 from .config_flow import DEFAULT_HVAC_MODES
 
@@ -79,6 +80,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self._max_temp = options.get(CONF_TEMP_MAX, DEFAULT_MAX_TEMP)
         self._min_temp = options.get(CONF_TEMP_MIN, DEFAULT_MIN_TEMP)
         self._power_sensor = options.get(CONF_POWER_SENSOR, None)
+        self._override_off_command = options.get(CONF_OVERRIDE_OFF_COMMAND, True)
 
         self._fan_mode = FAN_AUTO
         self._fan_modes = [
@@ -207,7 +209,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
 
     def set_hvac_mode(self, hvac_mode):
         """Set new target hvac mode."""
-        if hvac_mode == HVACMode.OFF:
+        if hvac_mode == HVACMode.OFF and self._override_off_command:
             self.sb.turn("off")
             self._is_on = False
         else:
@@ -222,7 +224,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self._update_remote()
 
     def _update_remote(self):
-        if (self._hvac_mode != HVACMode.OFF):
+        if (self._hvac_mode != HVACMode.OFF and self._override_off_command):
             self.sb.command(
                 "setAll",
                 f"{self.target_temperature},{HVAC_REMOTE_MODES[self.hvac_mode]},{FAN_REMOTE_MODES[self.fan_mode]},{self.power_state}",
