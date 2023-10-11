@@ -18,6 +18,7 @@ CONF_WITH_BRIGHTNESS = "with_brightness"
 CONF_WITH_TEMPERATURE = "with_temperature"
 CONF_ON_COMMAND = "on_command"
 CONF_OFF_COMMAND = "off_command"
+CONF_OVERRIDE_OFF_COMMAND = "override_off_command"
 
 """Supported Devices"""
 DIY_AIR_CONDITIONER_TYPE = "DIY Air Conditioner"

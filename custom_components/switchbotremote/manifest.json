@@ -5,12 +5,12 @@
 		"@KiraPC",
 		"@joshepw"
 	],
-	"dependencies": [],
-	"integration_type": "hub",
 	"config_flow": true,
+	"dependencies": [],
 	"documentation": "https://github.com/KiraPC/ha-switchbot-remote#readme",
-	"issue_tracker": "https://github.com/KiraPC/ha-switchbot-remote/issues",
+	"integration_type": "hub",
 	"iot_class": "cloud_push",
+	"issue_tracker": "https://github.com/KiraPC/ha-switchbot-remote/issues",
 	"requirements": [
 		"pyhumps"
 	],

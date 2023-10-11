@@ -42,6 +42,7 @@ from .const import (
     CONF_WITH_TEMPERATURE,
     CONF_ON_COMMAND,
     CONF_OFF_COMMAND,
+    CONF_OVERRIDE_OFF_COMMAND,
 )
 
 DEFAULT_HVAC_MODES = [
@@ -77,6 +78,7 @@ STEP_CONFIGURE_DEVICE = {
         vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
         vol.Optional(CONF_TEMPERATURE_SENSOR, description={"suggested_value": x.get(CONF_TEMPERATURE_SENSOR)}): selector({"entity": {"filter": {"domain": "sensor"}}}),
         vol.Optional(CONF_HUMIDITY_SENSOR, description={"suggested_value": x.get(CONF_HUMIDITY_SENSOR)}): selector({"entity": {"filter": {"domain": "sensor"}}}),
+        vol.Optional(CONF_OVERRIDE_OFF_COMMAND, default=x.get(CONF_OVERRIDE_OFF_COMMAND, True)): bool,
         vol.Optional(CONF_TEMP_MIN, default=x.get(CONF_TEMP_MIN, 16)): int,
         vol.Optional(CONF_TEMP_MAX, default=x.get(CONF_TEMP_MAX, 30)): int,
         vol.Optional(CONF_TEMP_STEP, default=x.get(CONF_TEMP_STEP, 1.0)): selector({"number": {"min": 0.1, "max": 2.0, "step": 0.1, "mode": "slider"}}),

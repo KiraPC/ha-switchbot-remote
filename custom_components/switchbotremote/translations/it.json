@@ -49,7 +49,8 @@
 					"with_brightness": "Abilita i pulsanti di controllo della luminosità",
 					"with_temperature": "Abilita i pulsanti colorati della temperatura",
 					"on_command": "Nome del pulsante di accensione/spegnimento",
-					"off_command": "Nome del pulsante Off in caso di funzionamento indipendente"
+					"off_command": "Nome del pulsante Off in caso di funzionamento indipendente",
+					"override_off_command": "Ignora il comando di spegnimento nativo"
 				}
 			}
 		}

@@ -49,7 +49,8 @@
 					"with_brightness": "Habilitar botones de control brillo",
 					"with_temperature": "Habilitar botones de color de temperatura",
 					"on_command": "Nombre del botón On/Off",
-					"off_command": "Nombre del botón Off en caso de accionar independiente"
+					"off_command": "Nombre del botón Off en caso de accionar independiente",
+					"override_off_command": "Reemplazar el comando de apagado nativo"
 				}
 			}
 		}
