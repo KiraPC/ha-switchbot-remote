@@ -70,15 +70,6 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
     async def send_command(self, *args):
         await self._hass.async_add_executor_job(self.sb.command, *args)
 
-    async def async_added_to_hass(self):
-        """Run when entity about to be added."""
-        await super().async_added_to_hass()
-
-        last_state = await self.async_get_last_state()
-
-        if last_state is not None:
-            self._state = last_state.state
-
     @property
     def device_info(self):
         return DeviceInfo(

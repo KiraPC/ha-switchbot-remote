@@ -36,7 +36,7 @@ class Remote:
         self,
         action: str,
         parameter: Optional[str] = None,
-        customize: Optional[bool] = False,
+        customize: Optional[bool] = False
     ):
         parameter = "default" if parameter is None else parameter
         command_type = "customize" if customize else "command"
@@ -66,5 +66,5 @@ class SupportedRemote(Remote):
 class OtherRemote(Remote):
     remote_type_for = "Others"
 
-    def command(self, action: str, parameter: Optional[str] = None):
-        super().command(action, parameter, True)
+    def command(self, action: str, parameter: Optional[str] = None, customize: Optional[bool] = False):
+        super().command(action, parameter, customize)
