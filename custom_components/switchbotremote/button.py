@@ -1,4 +1,4 @@
-import humps
+import humps, logging
 from typing import List
 from homeassistant.components.button import ButtonEntity
 from homeassistant.core import HomeAssistant
@@ -19,6 +19,8 @@ from .const import (
     CONF_WITH_TEMPERATURE,
 )
 
+_LOGGER = logging.getLogger(__name__)
+
 
 class SwitchBotRemoteButton(ButtonEntity):
     _attr_has_entity_name = False
@@ -31,6 +33,9 @@ class SwitchBotRemoteButton(ButtonEntity):
         self._device_name = sb.name
         self._command_name = command_name
         self._command_icon = command_icon
+
+    def __repr__(self):
+        return f"SwitchBotRemoteButton(command={self._command_name}&device={self.device_info})"
 
     async def send_command(self, *args):
         await self._hass.async_add_executor_job(self.sb.command, *args)
@@ -106,6 +111,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
                 entities.append(SwitchBotRemoteButton(
                     hass, remote, command, "mdi:remote"))
 
+
+    _LOGGER.debug(f'Adding buttons {entities}')
     async_add_entities(entities)
 
     return True

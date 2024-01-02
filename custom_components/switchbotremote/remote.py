@@ -98,6 +98,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         if (remote.type == OTHERS_TYPE and options.get("on_command", None)):
             entities.append(SwitchBotRemoteOther(remote, options))
 
+    _LOGGER.debug(f'Adding remotes {entities}')
     async_add_entities(entities)
 
     return True

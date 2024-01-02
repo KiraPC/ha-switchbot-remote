@@ -1,6 +1,7 @@
 """The SwitchBot Remote IR integration."""
 from __future__ import annotations
 
+import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -19,6 +20,8 @@ PLATFORMS: list[Platform] = [
     Platform.WATER_HEATER,
 ]
 
+_LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up SwitchBot Remote IR from a config entry."""
@@ -28,6 +31,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     switchbot = SwitchBot(token=entry.data["token"], secret=entry.data["secret"])
     remotes = await hass.async_add_executor_job(switchbot.remotes)
+
+    _LOGGER.debug(f"Configuring remotes: {remotes}")
     hass.data[DOMAIN][entry.entry_id] = remotes
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

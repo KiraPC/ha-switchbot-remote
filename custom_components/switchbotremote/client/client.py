@@ -41,17 +41,19 @@ class SwitchBotClient:
 
     def request(self, method: str, path: str, **kwargs) -> Any:
         url = f"{switchbot_host}/{path}"
+        _LOGGER.debug(f"Calling service {url}")
         response = request(method, url, headers=self.headers, **kwargs)
 
         if response.status_code != 200:
-            _LOGGER.debug("Received error", response.text)
+            _LOGGER.debug(f"Received http error {response.status_code} {response.text}")
             raise RuntimeError(f"SwitchBot API server returns status {response.status_code}")
 
         response_in_json = humps.decamelize(response.json())
         if response_in_json["status_code"] != 100:
-            _LOGGER.debug("Received error", response_in_json)
+            _LOGGER.debug(f"Received error in response {response_in_json}")
             raise RuntimeError(f'An error occurred: {response_in_json["message"]}')
 
+        _LOGGER.debug(f"Call service {url} OK")
         return response_in_json
 
     def get(self, path: str, **kwargs) -> Any:
