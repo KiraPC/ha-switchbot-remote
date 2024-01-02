@@ -111,14 +111,14 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         self._state = STATE_OFF
         self._source = None
 
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_turn_on(self):
         """Turn the media player off."""
         await self.send_command("turnOn")
 
         self._state = STATE_IDLE if self.sb.type in IR_TRACK_TYPES else STATE_ON
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_media_previous_track(self):
         """Send previous track command."""
@@ -126,7 +126,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
             await self.send_command("Previous")
         else:
             await self.send_command("channelSub")
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_media_next_track(self):
         """Send next track command."""
@@ -135,7 +135,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
             await self.send_command("Next")
         else:
             await self.send_command("channelAdd")
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_volume_down(self):
         """Turn volume down for media player."""
@@ -144,7 +144,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         else:
             await self.send_command("volumeSub")
 
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_volume_up(self):
         """Turn volume up for media player."""
@@ -153,7 +153,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         else:
             await self.send_command("volumeAdd")
 
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_mute_volume(self, mute):
         """Mute the volume."""
@@ -162,7 +162,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         else:
             await self.send_command("setMute")
 
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_media_play(self):
         """Play/Resume media"""
@@ -173,7 +173,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         else:
             await self.send_command("Play")
 
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_media_pause(self):
         """Pause media"""
@@ -184,19 +184,19 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         else:
             await self.send_command("Pause")
 
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_media_play_pause(self):
         """Play/Pause media"""
         self._state = STATE_PLAYING
         await self.send_command("Play")
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_media_stop(self):
         """Stop media"""
         self._state = STATE_IDLE
         await self.send_command("Stop")
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_play_media(self, media_type, media_id, **kwargs):
         """Support channel change through play_media service."""
@@ -210,7 +210,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
         self._source = "Channel {}".format(media_id)
         for digit in media_id:
             await self.send_command("SetChannel", digit, True)
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     @callback
     def _async_update_power(self, state):
@@ -232,7 +232,7 @@ class SwitchbotRemoteMediaPlayer(MediaPlayerEntity, RestoreEntity):
             return
 
         self._async_update_power(new_state)
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_added_to_hass(self):
         """Run when entity about to be added."""

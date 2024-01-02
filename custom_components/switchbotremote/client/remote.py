@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import ClassVar, Dict, Optional, Type
-
+import logging
 import humps
-
+from typing import ClassVar, Dict, Optional, Type
 from .client import SwitchBotClient
 
+_LOGGER = logging.getLogger(__name__)
 
 class Remote:
     remote_type_for: ClassVar[Optional[str]] = None
@@ -38,6 +38,7 @@ class Remote:
         parameter: Optional[str] = None,
         customize: Optional[bool] = False
     ):
+        _LOGGER.debug(f"Sending command {action}")
         parameter = "default" if parameter is None else parameter
         command_type = "customize" if customize else "command"
         payload = humps.camelize(
@@ -48,6 +49,7 @@ class Remote:
             }
         )
 
+        _LOGGER.debug(f"Command payload {payload}")
         self.client.post(f"devices/{self.id}/commands", json=payload)
 
     def __repr__(self):

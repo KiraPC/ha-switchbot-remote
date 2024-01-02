@@ -129,6 +129,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     try:
         remotes = await hass.async_add_executor_job(switchbot.remotes)
+        _LOGGER.debug(f"Found remotes: {remotes}")
         return {"title": data["name"], "remotes": remotes}
     except:
         raise InvalidAuth()
