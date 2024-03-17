@@ -90,7 +90,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             FAN_HIGH,
         ]
 
-        self._supported_features = ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+        self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
 
         self._temperature_sensor = options.get(CONF_TEMPERATURE_SENSOR, None)
         self._humidity_sensor = options.get(CONF_HUMIDITY_SENSOR, None)
