@@ -11,7 +11,8 @@ from homeassistant.components.climate.const import (
     FAN_MEDIUM,
     FAN_HIGH,
 )
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON, TEMP_CELSIUS
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON
+from homeassistant.const import UnitOfTemperature
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from .client.remote import SupportedRemote
@@ -74,7 +75,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
 
         self._hvac_mode = HVACMode.OFF
 
-        self._temperature_unit = TEMP_CELSIUS
+        self._temperature_unit = UnitOfTemperature.CELSIUS
         self._target_temperature = 28
         self._target_temperature_step = options.get(CONF_TEMP_STEP, 1)
         self._max_temp = options.get(CONF_TEMP_MAX, DEFAULT_MAX_TEMP)
