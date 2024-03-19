@@ -98,6 +98,11 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self._current_temperature = None
         self._current_humidity = None
 
+        # ClimateEntityFeature migration done
+        # This line will be removed after deprecation period (until 2025.1)
+        # https://developers.home-assistant.io/blog/2024/01/24/climate-climateentityfeatures-expanded/
+        self._enable_turn_on_off_backwards_compatibility = False
+
     @property
     def device_info(self):
         return DeviceInfo(
@@ -198,6 +203,10 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         return {
             'last_on_operation': self._last_on_operation
         }
+
+    def turn_off(self):
+        """Turn off."""
+        self.set_hvac_mode(HVACMode.OFF)
 
     def turn_on(self):
         """Turn on."""
