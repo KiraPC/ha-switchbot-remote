@@ -48,7 +48,10 @@ class SwitchBotClient:
 
         if response.status_code != 200:
             _LOGGER.debug(f"Received http error {response.status_code} {response.text}")
-            raise HomeAssistantError(f"SwitchBot API server returns status {response.status_code}")
+            if response.status_code != 500:
+                raise HomeAssistantError(f"SwitchBot API server returns status {response.status_code}")
+            else:
+                raise SwitchbotInternal500Error
 
         response_in_json = humps.decamelize(response.json())
         if response_in_json["status_code"] != 100:
@@ -69,3 +72,6 @@ class SwitchBotClient:
 
     def delete(self, path: str, **kwargs) -> Any:
         return self.request("DELETE", path, **kwargs)
+
+class SwitchbotInternal500Error(HomeAssistantError):
+    """Exception raised if the 500 status error has been received from Switchbot cloud API"""
