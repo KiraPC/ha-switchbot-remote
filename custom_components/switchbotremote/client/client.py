@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 import humps
+import time
 from requests import request
 
 from homeassistant.exceptions import HomeAssistantError
@@ -13,6 +14,8 @@ from homeassistant.exceptions import HomeAssistantError
 _LOGGER = logging.getLogger(__name__)
 switchbot_host = "https://api.switch-bot.com/v1.1"
 
+MAX_TRIES = 5
+DELAY_BETWEEN_TRIES_MS = 500
 
 class SwitchBotClient:
     def __init__(self, token: str, secret: str, nonce: str):
@@ -60,18 +63,36 @@ class SwitchBotClient:
 
         _LOGGER.debug(f"Call service {url} OK")
         return response_in_json
+    
+    def filtered_request(self, method: str, path: str, **kwargs) -> Any:
+        """Try to send the request.
+        If the server returns a 500 Internal error status, will retry until it succeeds or it passes a threshold of max number of tries.
+        Any other error will be thrown."""
+        for tryNumber in range(MAX_TRIES):
+            try:
+                result = self.request(method, path, **kwargs)
+                break
+            except SwitchbotInternal500Error:
+                _LOGGER.debug(f"Caught 500 from Switchbot servers, tryNumber = {tryNumber}")
+                _LOGGER.debug(f"Waiting {DELAY_BETWEEN_TRIES_MS} ms")
+                time.sleep(DELAY_BETWEEN_TRIES_MS) # TODO : THIS IS PROBABLY A BIG NO-NO
+        
+        if tryNumber >= MAX_TRIES-1:
+            raise SwitchbotInternal500Error(f"Max tries ({MAX_TRIES}) reached")
+        
+        return result
 
     def get(self, path: str, **kwargs) -> Any:
-        return self.request("GET", path, **kwargs)
+        return self.filtered_request("GET", path, **kwargs)
 
     def post(self, path: str, **kwargs) -> Any:
-        return self.request("POST", path, **kwargs)
+        return self.filtered_request("POST", path, **kwargs)
 
     def put(self, path: str, **kwargs) -> Any:
-        return self.request("PUT", path, **kwargs)
+        return self.filtered_request("PUT", path, **kwargs)
 
     def delete(self, path: str, **kwargs) -> Any:
-        return self.request("DELETE", path, **kwargs)
+        return self.filtered_request("DELETE", path, **kwargs)
 
 class SwitchbotInternal500Error(HomeAssistantError):
     """Exception raised if the 500 status error has been received from Switchbot cloud API"""
