@@ -75,7 +75,7 @@ class SwitchBotClient:
             except SwitchbotInternal500Error:
                 _LOGGER.debug(f"Caught 500 from Switchbot servers, tryNumber = {tryNumber}")
                 _LOGGER.debug(f"Waiting {DELAY_BETWEEN_TRIES_MS} ms")
-                time.sleep(DELAY_BETWEEN_TRIES_MS) # TODO : THIS IS PROBABLY A BIG NO-NO
+                time.sleep(DELAY_BETWEEN_TRIES_MS / 1000)
         
         if tryNumber >= MAX_TRIES-1:
             raise SwitchbotInternal500Error(f"Max tries ({MAX_TRIES}) reached")
