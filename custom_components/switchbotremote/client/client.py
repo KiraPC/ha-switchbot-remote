@@ -8,6 +8,8 @@ from typing import Any
 import humps
 from requests import request
 
+from homeassistant.exceptions import HomeAssistantError
+
 _LOGGER = logging.getLogger(__name__)
 switchbot_host = "https://api.switch-bot.com/v1.1"
 
@@ -46,12 +48,12 @@ class SwitchBotClient:
 
         if response.status_code != 200:
             _LOGGER.debug(f"Received http error {response.status_code} {response.text}")
-            raise RuntimeError(f"SwitchBot API server returns status {response.status_code}")
+            raise HomeAssistantError(f"SwitchBot API server returns status {response.status_code}")
 
         response_in_json = humps.decamelize(response.json())
         if response_in_json["status_code"] != 100:
             _LOGGER.debug(f"Received error in response {response_in_json}")
-            raise RuntimeError(f'An error occurred: {response_in_json["message"]}')
+            raise HomeAssistantError(f'An error occurred: {response_in_json["message"]}')
 
         _LOGGER.debug(f"Call service {url} OK")
         return response_in_json
