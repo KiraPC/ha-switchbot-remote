@@ -122,7 +122,7 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
             return
 
         self._async_update_temp(new_state)
-        await self.async_update_ha_state()
+        await self.async_update_ha_state(force_refresh=True)
 
     @callback
     def _async_update_power(self, state):
