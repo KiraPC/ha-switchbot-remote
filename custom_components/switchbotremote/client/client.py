@@ -44,7 +44,7 @@ class SwitchBotClient:
 
         return headers
 
-    def request(self, method: str, path: str, **kwargs) -> Any:
+    def __request(self, method: str, path: str, **kwargs) -> Any:
         url = f"{switchbot_host}/{path}"
         _LOGGER.debug(f"Calling service {url}")
         response = request(method, url, headers=self.headers, **kwargs)
@@ -64,13 +64,13 @@ class SwitchBotClient:
         _LOGGER.debug(f"Call service {url} OK")
         return response_in_json
     
-    def filtered_request(self, method: str, path: str, **kwargs) -> Any:
+    def request(self, method: str, path: str, **kwargs) -> Any:
         """Try to send the request.
         If the server returns a 500 Internal error status, will retry until it succeeds or it passes a threshold of max number of tries.
         Any other error will be thrown."""
         for tryNumber in range(MAX_TRIES):
             try:
-                result = self.request(method, path, **kwargs)
+                result = self.__request(method, path, **kwargs)
                 break
             except SwitchbotInternal500Error:
                 _LOGGER.warning("Caught returned status 500 from SwitchBot API server")
@@ -83,16 +83,16 @@ class SwitchBotClient:
         return result
 
     def get(self, path: str, **kwargs) -> Any:
-        return self.filtered_request("GET", path, **kwargs)
+        return self.request("GET", path, **kwargs)
 
     def post(self, path: str, **kwargs) -> Any:
-        return self.filtered_request("POST", path, **kwargs)
+        return self.request("POST", path, **kwargs)
 
     def put(self, path: str, **kwargs) -> Any:
-        return self.filtered_request("PUT", path, **kwargs)
+        return self.request("PUT", path, **kwargs)
 
     def delete(self, path: str, **kwargs) -> Any:
-        return self.filtered_request("DELETE", path, **kwargs)
+        return self.request("DELETE", path, **kwargs)
 
 class SwitchbotInternal500Error(HomeAssistantError):
     """Exception raised if the 500 status error has been received from Switchbot cloud API"""
