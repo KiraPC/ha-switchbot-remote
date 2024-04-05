@@ -64,18 +64,18 @@ class SwitchBotClient:
         _LOGGER.debug(f"Call service {url} OK")
         return response_in_json
     
-    def request(self, method: str, path: str, **kwargs) -> Any:
+    def request(self, method: str, path: str, maxNumberOfTrials: int = MAX_TRIES, delayMSBetweenTrials: int = DELAY_BETWEEN_TRIES_MS, **kwargs) -> Any:
         """Try to send the request.
         If the server returns a 500 Internal error status, will retry until it succeeds or it passes a threshold of max number of tries.
         Any other error will be thrown."""
-        for tryNumber in range(MAX_TRIES):
+        for tryNumber in range(maxNumberOfTrials):
             try:
                 result = self.__request(method, path, **kwargs)
                 break
             except SwitchbotInternal500Error:
                 _LOGGER.warning("Caught returned status 500 from SwitchBot API server")
                 _LOGGER.debug(f"tryNumber = {tryNumber}, waiting {DELAY_BETWEEN_TRIES_MS} ms")
-                time.sleep(DELAY_BETWEEN_TRIES_MS / 1000)
+                time.sleep(delayMSBetweenTrials / 1000)
         
         if tryNumber >= MAX_TRIES-1:
             raise SwitchbotInternal500Error(f"Max tries ({MAX_TRIES}) reached")
