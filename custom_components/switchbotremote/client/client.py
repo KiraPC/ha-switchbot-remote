@@ -74,11 +74,11 @@ class SwitchBotClient:
                 break
             except SwitchbotInternal500Error:
                 _LOGGER.warning("Caught returned status 500 from SwitchBot API server")
-                _LOGGER.debug(f"tryNumber = {tryNumber}, waiting {DELAY_BETWEEN_TRIES_MS} ms")
+                _LOGGER.debug(f"tryNumber = {tryNumber}, waiting {delayMSBetweenTrials} ms")
                 time.sleep(delayMSBetweenTrials / 1000)
-        
-        if tryNumber >= MAX_TRIES-1:
-            raise SwitchbotInternal500Error(f"Max tries ({MAX_TRIES}) reached")
+        else:
+            # The following exception is only raised if all the request attempts have thrown a 500 error code
+            raise SwitchbotInternal500Error(f"Received multiple ({maxNumberOfTrials}) consecutive 500 errors from SwitchBot API server")
         
         return result
 
