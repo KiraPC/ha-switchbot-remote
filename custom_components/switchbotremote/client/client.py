@@ -71,7 +71,7 @@ class SwitchBotClient:
         for tryNumber in range(maxNumberOfTrials):
             try:
                 result = self.__request(method, path, **kwargs)
-                break
+                return result
             except SwitchbotInternal500Error:
                 _LOGGER.warning("Caught returned status 500 from SwitchBot API server")
                 _LOGGER.debug(f"tryNumber = {tryNumber}, waiting {delayMSBetweenTrials} ms")
@@ -79,8 +79,6 @@ class SwitchBotClient:
         else:
             # The following exception is only raised if all the request attempts have thrown a 500 error code
             raise SwitchbotInternal500Error(f"Received multiple ({maxNumberOfTrials}) consecutive 500 errors from SwitchBot API server")
-        
-        return result
 
     def get(self, path: str, **kwargs) -> Any:
         return self.request("GET", path, **kwargs)
