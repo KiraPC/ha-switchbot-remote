@@ -11,7 +11,8 @@ from homeassistant.components.climate.const import (
     FAN_MEDIUM,
     FAN_HIGH,
 )
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON, TEMP_CELSIUS
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON
+from homeassistant.const import UnitOfTemperature
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from .client.remote import SupportedRemote
@@ -74,7 +75,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
 
         self._hvac_mode = HVACMode.OFF
 
-        self._temperature_unit = TEMP_CELSIUS
+        self._temperature_unit = UnitOfTemperature.CELSIUS
         self._target_temperature = 28
         self._target_temperature_step = options.get(CONF_TEMP_STEP, 1)
         self._max_temp = options.get(CONF_TEMP_MAX, DEFAULT_MAX_TEMP)
@@ -90,12 +91,17 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             FAN_HIGH,
         ]
 
-        self._supported_features = ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+        self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
 
         self._temperature_sensor = options.get(CONF_TEMPERATURE_SENSOR, None)
         self._humidity_sensor = options.get(CONF_HUMIDITY_SENSOR, None)
         self._current_temperature = None
         self._current_humidity = None
+
+        # ClimateEntityFeature migration done
+        # This line will be removed after deprecation period (until 2025.1)
+        # https://developers.home-assistant.io/blog/2024/01/24/climate-climateentityfeatures-expanded/
+        self._enable_turn_on_off_backwards_compatibility = False
 
     @property
     def device_info(self):
@@ -198,6 +204,10 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             'last_on_operation': self._last_on_operation
         }
 
+    def turn_off(self):
+        """Turn off."""
+        self.set_hvac_mode(HVACMode.OFF)
+
     def turn_on(self):
         """Turn on."""
         self.set_hvac_mode(self._last_on_operation or HVACMode.COOL)
@@ -245,7 +255,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             return
 
         self._async_update_temp(new_state)
-        await self.async_update_ha_state()
+        await self.async_update_ha_state(force_refresh=True)
 
     @callback
     def _async_update_humidity(self, state):
@@ -262,7 +272,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             return
 
         self._async_update_humidity(new_state)
-        await self.async_update_ha_state()
+        await self.async_update_ha_state(force_refresh=True)
 
     @callback
     def _async_update_power(self, state):
@@ -284,7 +294,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             return
 
         self._async_update_power(new_state)
-        await self.async_update_ha_state()
+        await self.async_update_ha_state(force_refresh=True)
 
     async def async_added_to_hass(self):
         """Run when entity about to be added."""

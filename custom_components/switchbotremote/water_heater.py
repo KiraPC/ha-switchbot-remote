@@ -7,7 +7,8 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON, TEMP_CELSIUS
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON
+from homeassistant.const import UnitOfTemperature
 from .client.remote import SupportedRemote
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
         self._attr_unique_id = sb.id
         self._is_on = False
         self._state = STATE_OFF
-        self._temperature_unit = TEMP_CELSIUS
+        self._temperature_unit = UnitOfTemperature.CELSIUS
         self._supported_features = WaterHeaterEntityFeature.OPERATION_MODE
 
         self._current_temperature = None
@@ -121,7 +122,7 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
             return
 
         self._async_update_temp(new_state)
-        await self.async_update_ha_state()
+        await self.async_update_ha_state(force_refresh=True)
 
     @callback
     def _async_update_power(self, state):
