@@ -4,6 +4,8 @@ from typing import List
 from .client import SwitchBotClient
 from .remote import Remote
 
+from homeassistant.exceptions import ServiceValidationError
+
 __version__ = "2.3.1"
 
 
@@ -22,4 +24,4 @@ class SwitchBot:
         for remote in self.remotes():
             if remote.id == id:
                 return remote
-        raise ValueError(f"Unknown remote {id}")
+        raise ServiceValidationError(f"Unknown remote {id}")

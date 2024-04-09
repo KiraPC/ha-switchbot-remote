@@ -12,6 +12,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.selector import selector
 from homeassistant.components.climate.const import HVACMode
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from .client import SwitchBot
 
 from .const import (
@@ -131,8 +132,8 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         remotes = await hass.async_add_executor_job(switchbot.remotes)
         _LOGGER.debug(f"Found remotes: {remotes}")
         return {"title": data["name"], "remotes": remotes}
-    except:
-        raise InvalidAuth()
+    except Exception as exception:
+        raise ConfigEntryAuthFailed from exception
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -191,8 +192,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         try:
             self.discovered_devices = await self.hass.async_add_executor_job(self.sb.remotes)
-        except:
-            raise InvalidAuth()
+        except Exception as exception:
+            raise ConfigEntryAuthFailed from exception
 
         devices = dict()
         for remote in self.discovered_devices:
