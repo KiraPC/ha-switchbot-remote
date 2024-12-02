@@ -82,7 +82,7 @@ STEP_CONFIGURE_DEVICE = {
         vol.Optional(CONF_OVERRIDE_OFF_COMMAND, default=x.get(CONF_OVERRIDE_OFF_COMMAND, True)): bool,
         vol.Optional(CONF_TEMP_MIN, default=x.get(CONF_TEMP_MIN, 16)): int,
         vol.Optional(CONF_TEMP_MAX, default=x.get(CONF_TEMP_MAX, 30)): int,
-        vol.Optional(CONF_TEMP_STEP, default=x.get(CONF_TEMP_STEP, 1.0)): selector({"number": {"min": 0.1, "max": 2.0, "step": 0.1, "mode": "slider"}}),
+        vol.Optional(CONF_TEMP_STEP, default=x.get(CONF_TEMP_STEP, 1.0)): selector({"number": {"min": 1.0, "max": 5.0, "step": 1.0, "mode": "slider"}}),
         vol.Optional(CONF_HVAC_MODES, description={"suggested_value": x.get(CONF_HVAC_MODES, DEFAULT_HVAC_MODES)}): vol.All(selector({"select": {"multiple": True, "options": HVAC_MODES}})),
         vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
