@@ -1,0 +1,58 @@
+{
+	"config": {
+		"abort": {
+			"already_configured": "Le périphérique est déjà configuré"
+		},
+		"error": {
+			"cannot_connect": "Impossible de se connecter",
+			"invalid_auth": "Authentification invalide",
+			"unknown": "Erreur inattendue"
+		},
+		"step": {
+			"user": {
+				"data": {
+					"name": "Nom du hub SwitchBot - doit être unique pour cette instance de Home Assistant",
+					"token": "Entrer la clef développeur SwitchBot",
+					"secret": "Entrer la clef secrète SwitchBot"
+				}
+			}
+		}
+	},
+	"options": {
+		"error": {
+			"cannot_connect": "Impossible de se connecter",
+			"invalid_auth": "Authentification invalide",
+			"unknown": "Erreur inattendue"
+		},
+		"step": {
+			"init": {
+				"title": "Personnaliser le périphérique",
+				"description": "Sélectionner le périphérique que vous souhaitez éditer.",
+				"data": {
+					"selected_device": "Périphériques découverts"
+				}
+			},
+			"edit_device": {
+				"title": "Paramètrage du périphérique",
+				"data": {
+					"temperature_sensor": "ID du capteur de température qui sera utilisé comme étant le capteur de la climatisation",
+					"humidity_sensor": "ID du capteur d'humidité qui sera utilisé comme étant le capteur d'humidité de la climatisation",
+					"power_sensor": "ID du capteur de mise sous tension qui servira à indiquer le statut du périphérique",
+					"customize_commands": "Noms des boutons (sensible à la casse)",
+					"hvac_modes": "Modes disponibles",
+					"temp_min": "Température minimale",
+					"temp_max": "Température maximale",
+					"temp_step": "Précision de la température",
+					"with_speed": "Active la vitesse du ventilateur",
+					"with_ion": "Active le bouton 'ION'",
+					"with_timer": "Active le bouton 'Timer'",
+					"with_brightness": "Active le bouton de gestion de luminosité",
+					"with_temperature": "Active le bouton de gestion de température de couleur",
+					"on_command": "Nom du bouton On/Off",
+					"off_command": "Nom du bouton Off dans le cas d'une opération indépendante",
+					"override_off_command": "Remplace la commande 'off' native"
+				}
+			}
+		}
+	}
+}
