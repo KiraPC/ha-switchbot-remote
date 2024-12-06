@@ -11,9 +11,9 @@
 		"step": {
 			"user": {
 				"data": {
-					"name": "Nom du hub SwitchBot - doit être unique pour cette instance de Home Assistant",
-					"token": "Entrer la clef développeur SwitchBot",
-					"secret": "Entrer la clef secrète SwitchBot"
+					"name": "Nom du hub SwitchBot - doit être unique pour chaque instance de Home Assistant",
+					"token": "Entrer votre 'token' SwitchBot",
+					"secret": "Entrer votre clef de décryptage SwitchBot"
 				}
 			}
 		}
@@ -35,19 +35,19 @@
 			"edit_device": {
 				"title": "Paramètrage du périphérique",
 				"data": {
-					"temperature_sensor": "ID du capteur de température qui sera utilisé comme étant le capteur de la climatisation",
-					"humidity_sensor": "ID du capteur d'humidité qui sera utilisé comme étant le capteur d'humidité de la climatisation",
-					"power_sensor": "ID du capteur de mise sous tension qui servira à indiquer le statut du périphérique",
+					"temperature_sensor": "ID du capteur de température qui sera considéré comme le capteur de la climatisation",
+					"humidity_sensor": "ID du capteur d'humidité qui sera considéré comme le capteur de la climatisation",
+					"power_sensor": "ID du capteur de mise sous tension du périphérique",
 					"customize_commands": "Noms des boutons (sensible à la casse)",
 					"hvac_modes": "Modes disponibles",
 					"temp_min": "Température minimale",
 					"temp_max": "Température maximale",
 					"temp_step": "Précision de la température",
-					"with_speed": "Active la vitesse du ventilateur",
+					"with_speed": "Active les vitesses de ventilation",
 					"with_ion": "Active le bouton 'ION'",
 					"with_timer": "Active le bouton 'Timer'",
-					"with_brightness": "Active le bouton de gestion de luminosité",
-					"with_temperature": "Active le bouton de gestion de température de couleur",
+					"with_brightness": "Active la gestion de luminosité",
+					"with_temperature": "Active la gestion de température de couleur",
 					"on_command": "Nom du bouton On/Off",
 					"off_command": "Nom du bouton Off dans le cas d'une opération indépendante",
 					"override_off_command": "Remplace la commande 'off' native"
