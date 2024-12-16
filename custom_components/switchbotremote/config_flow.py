@@ -161,7 +161,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="reconfigure",
             data_schema=vol.Schema(
                 {
-                    vol.Required("host", default=old_entry.data['host'] or "https://api.switch-bot.com"): str,
+                    vol.Required("host", default=old_entry.data.get('host', "https://api.switch-bot.com")): str,
                     vol.Required("name", default=old_entry.data['name']): str,
                     vol.Required("token", default=old_entry.data['token']): str,
                     vol.Required("secret", default=old_entry.data['secret']): str,
