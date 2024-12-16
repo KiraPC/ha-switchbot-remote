@@ -32,7 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.add_update_listener(update_listener)
 
-    switchbot = SwitchBot(token=entry.data["token"], secret=entry.data["secret"])
+    switchbot = SwitchBot(token=entry.data["token"], secret=entry.data["secret"], host=entry.data["host"])
     remotes = await hass.async_add_executor_job(switchbot.remotes)
 
     _LOGGER.debug(f"Configuring remotes: {remotes}")

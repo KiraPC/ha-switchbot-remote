@@ -12,13 +12,15 @@ from requests import request
 from homeassistant.exceptions import HomeAssistantError
 
 _LOGGER = logging.getLogger(__name__)
-switchbot_host = "https://api.switch-bot.com/v1.1"
+switchbot_host = "https://api.switch-bot.com"
+api_version = "v1.1"
 
 MAX_TRIES = 5
 DELAY_BETWEEN_TRIES_MS = 500
 
 class SwitchBotClient:
-    def __init__(self, token: str, secret: str, nonce: str):
+    def __init__(self, token: str, secret: str, nonce: str, host=switchbot_host):
+        self._host = host
         self._token = token
         self._secret = secret
         self._nonce = nonce
@@ -45,7 +47,7 @@ class SwitchBotClient:
         return headers
 
     def __request(self, method: str, path: str, **kwargs) -> Any:
-        url = f"{switchbot_host}/{path}"
+        url = f"{self._host}/{api_version}/{path}"
         _LOGGER.debug(f"Calling service {url}")
         response = request(method, url, headers=self.headers, **kwargs)
 
@@ -63,7 +65,7 @@ class SwitchBotClient:
 
         _LOGGER.debug(f"Call service {url} OK")
         return response_in_json
-    
+
     def request(self, method: str, path: str, maxNumberOfTrials: int = MAX_TRIES, delayMSBetweenTrials: int = DELAY_BETWEEN_TRIES_MS, **kwargs) -> Any:
         """Try to send the request.
         If the server returns a 500 Internal error status, will retry until it succeeds or it passes a threshold of max number of tries.
