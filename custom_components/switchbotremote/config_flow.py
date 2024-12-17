@@ -124,7 +124,11 @@ STEP_CONFIGURE_DEVICE = {
 
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    switchbot = SwitchBot(token=data["token"], secret=data["secret"], host=data["host"])
+    switchbot = SwitchBot(
+        token=data["token"], 
+        secret=data["secret"], 
+        host=data.get("host", switchbot_host)
+    )
 
     try:
         remotes = await hass.async_add_executor_job(switchbot.remotes)
@@ -202,7 +206,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self.sb = SwitchBot(
             token=self.data["token"],
             secret=self.data["secret"],
-            host=self.data["host"] or switchbot_host
+            host=self.data.get("host", switchbot_host)
         )
         self.discovered_devices = []
         self.selected_device = None
