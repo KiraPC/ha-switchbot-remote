@@ -13,7 +13,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.selector import selector
 
-from .client import SwitchBot
+from .client import SwitchBot, switchbot_host
 from .const import (
     AIR_CONDITIONER_CLASS,
     CAMERA_CLASS,
@@ -65,7 +65,7 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required("host", default="https://api.switch-bot.com"): str,
+        vol.Required("host", default=switchbot_host): str,
         vol.Required("name"): str,
         vol.Required("token"): str,
         vol.Required("secret"): str,
@@ -161,7 +161,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="reconfigure",
             data_schema=vol.Schema(
                 {
-                    vol.Required("host", default=old_entry.data.get('host', "https://api.switch-bot.com")): str,
+                    vol.Required("host", default=old_entry.data.get('host', switchbot_host)): str,
                     vol.Required("name", default=old_entry.data['name']): str,
                     vol.Required("token", default=old_entry.data['token']): str,
                     vol.Required("secret", default=old_entry.data['secret']): str,
@@ -202,7 +202,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self.sb = SwitchBot(
             token=self.data["token"],
             secret=self.data["secret"],
-            host=self.data["host"] or "https://api.switch-bot.com"
+            host=self.data["host"] or switchbot_host
         )
         self.discovered_devices = []
         self.selected_device = None
