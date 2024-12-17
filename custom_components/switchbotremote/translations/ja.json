@@ -1,0 +1,58 @@
+{
+	"config": {
+		"abort": {
+			"already_configured": "デバイスはすでに設定されています"
+		},
+		"error": {
+			"cannot_connect": "接続に失敗しました",
+			"invalid_auth": "認証が無効です",
+			"unknown": "予期せぬエラー"
+		},
+		"step": {
+			"user": {
+				"data": {
+					"name": "SwitchBotハブの名前 - Home Assistantのインストールごとに固有のものである必要があります",
+					"token": "SwitchBotの開発者トークンを入力",
+					"secret": "SwitchBotの開発者シークレットを入力"
+				}
+			}
+		}
+	},
+	"options": {
+		"error": {
+			"cannot_connect": "接続に失敗しました",
+			"invalid_auth": "認証が無効です",
+			"unknown": "予期せぬエラー"
+		},
+		"step": {
+			"init": {
+				"title": "デバイスのカスタマイズ",
+				"description": "設定を変更したいデバイスを選んでください。",
+				"data": {
+					"selected_device": "見つかったデバイス"
+				}
+			},
+			"edit_device": {
+				"title": "デバイスの設定",
+				"data": {
+					"temperature_sensor": "エアコンの実際の温度として使用する温度センサーのID",
+					"humidity_sensor": "エアコンの実際の湿度として使用する湿度センサーのID",
+					"power_sensor": "デバイスの状態を取得するための電源センサーのID",
+					"customize_commands": "ボタンの名前（大文字と小文字を区別）",
+					"hvac_modes": "対応するモード",
+					"temp_min": "最低温度",
+					"temp_max": "最大温度",
+					"temp_step": "温度の変化幅",
+					"with_speed": "ファン速度を有効化する",
+					"with_ion": "「イオン」ボタンを有効化する",
+					"with_timer": "「タイマー」ボタンを有効化する",
+					"with_brightness": "明るさの調節ボタンを有効化する",
+					"with_temperature": "色温度のボタンを有効化する",
+					"on_command": "オン/オフ ボタン名",
+					"off_command": "自立運転時のオフボタン名",
+					"override_off_command": "ネイティブの「off」コマンドを上書きする"
+				}
+			}
+		}
+	}
+}

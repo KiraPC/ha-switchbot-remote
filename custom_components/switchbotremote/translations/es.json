@@ -11,7 +11,7 @@
 		"step": {
 			"user": {
 				"data": {
-					"name": "Nombre del Switchbot Hub: debe ser único para cada aplicación de Homeassistant",
+					"name": "Nombre del SwitchBot Hub: debe ser único para cada aplicación de Home Assistant",
 					"token": "Inserta tu token de desarrollador de SwitchBot",
 					"secret": "Inserta tu código de desarrollador de SwitchBot"
 				}

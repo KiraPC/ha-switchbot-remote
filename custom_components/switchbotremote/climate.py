@@ -237,7 +237,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         if (self._hvac_mode != HVACMode.OFF and self._override_off_command):
             self.sb.command(
                 "setAll",
-                f"{self.target_temperature},{HVAC_REMOTE_MODES[self.hvac_mode]},{FAN_REMOTE_MODES[self.fan_mode]},{self.power_state}",
+                f"{int(self.target_temperature)},{HVAC_REMOTE_MODES[self.hvac_mode]},{FAN_REMOTE_MODES[self.fan_mode]},{self.power_state}",
             )
 
     @callback

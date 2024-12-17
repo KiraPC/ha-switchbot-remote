@@ -11,9 +11,9 @@
 		"step": {
 			"user": {
 				"data": {
-					"name": "Name of the switchbot Hub - This has to be unique per homeassistant app",
-					"token": "Insert your switchbot developer token",
-					"secret": "Insert your switchbot developer seret"
+					"name": "Name of the SwitchBot Hub - This has to be unique per Home Assistant installation",
+					"token": "Insert your SwitchBot developer token",
+					"secret": "Insert your SwitchBot developer secret"
 				}
 			}
 		}

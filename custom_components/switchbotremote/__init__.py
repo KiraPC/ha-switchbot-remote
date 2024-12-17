@@ -5,7 +5,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from .client import SwitchBot
+from .client import SwitchBot, switchbot_host
 
 from .const import DOMAIN
 from homeassistant.helpers import (
@@ -32,7 +32,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.add_update_listener(update_listener)
 
-    switchbot = SwitchBot(token=entry.data["token"], secret=entry.data["secret"])
+    switchbot = SwitchBot(
+        token=entry.data["token"], 
+        secret=entry.data["secret"], 
+        host=entry.data.get("host", switchbot_host)
+    )
     remotes = await hass.async_add_executor_job(switchbot.remotes)
 
     _LOGGER.debug(f"Configuring remotes: {remotes}")
