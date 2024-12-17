@@ -7,43 +7,40 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.components.climate.const import HVACMode
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.selector import selector
-from homeassistant.components.climate.const import HVACMode
-from homeassistant.exceptions import ConfigEntryAuthFailed
-from .client import SwitchBot
 
+from .client import SwitchBot, switchbot_host
 from .const import (
-    DOMAIN,
-    CLASS_BY_TYPE,
-
     AIR_CONDITIONER_CLASS,
+    CAMERA_CLASS,
+    CLASS_BY_TYPE,
+    CONF_CUSTOMIZE_COMMANDS,
+    CONF_HUMIDITY_SENSOR,
+    CONF_HVAC_MODES,
+    CONF_OFF_COMMAND,
+    CONF_ON_COMMAND,
+    CONF_OVERRIDE_OFF_COMMAND,
+    CONF_POWER_SENSOR,
+    CONF_TEMP_MAX,
+    CONF_TEMP_MIN,
+    CONF_TEMP_STEP,
+    CONF_TEMPERATURE_SENSOR,
+    CONF_WITH_BRIGHTNESS,
+    CONF_WITH_ION,
+    CONF_WITH_SPEED,
+    CONF_WITH_TEMPERATURE,
+    CONF_WITH_TIMER,
+    DOMAIN,
     FAN_CLASS,
     LIGHT_CLASS,
     MEDIA_CLASS,
-    CAMERA_CLASS,
+    OTHERS_CLASS,
     VACUUM_CLASS,
     WATER_HEATER_CLASS,
-    OTHERS_CLASS,
-
-    CONF_POWER_SENSOR,
-    CONF_TEMPERATURE_SENSOR,
-    CONF_HUMIDITY_SENSOR,
-    CONF_TEMP_MIN,
-    CONF_TEMP_MAX,
-    CONF_TEMP_STEP,
-    CONF_HVAC_MODES,
-    CONF_CUSTOMIZE_COMMANDS,
-    CONF_WITH_SPEED,
-    CONF_WITH_ION,
-    CONF_WITH_TIMER,
-    CONF_WITH_BRIGHTNESS,
-    CONF_WITH_TEMPERATURE,
-    CONF_ON_COMMAND,
-    CONF_OFF_COMMAND,
-    CONF_OVERRIDE_OFF_COMMAND,
 )
 
 DEFAULT_HVAC_MODES = [
@@ -68,6 +65,7 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
+        vol.Required("host", default=switchbot_host): str,
         vol.Required("name"): str,
         vol.Required("token"): str,
         vol.Required("secret"): str,
@@ -126,7 +124,11 @@ STEP_CONFIGURE_DEVICE = {
 
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    switchbot = SwitchBot(token=data["token"], secret=data["secret"])
+    switchbot = SwitchBot(
+        token=data["token"], 
+        secret=data["secret"], 
+        host=data.get("host", switchbot_host)
+    )
 
     try:
         remotes = await hass.async_add_executor_job(switchbot.remotes)
@@ -146,6 +148,30 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry):
         """Get options flow for this handler."""
         return OptionsFlowHandler(config_entry)
+
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
+        if user_input is not None:
+            name = user_input["name"]
+            uniq_id = f"switchbot_remote_{name}"
+            await self.async_set_unique_id(uniq_id)
+            return self.async_update_reload_and_abort(
+                self._get_reconfigure_entry(),
+                data_updates=user_input,
+            )
+
+        old_entry = self._get_reconfigure_entry()
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("host", default=old_entry.data.get('host', switchbot_host)): str,
+                    vol.Required("name", default=old_entry.data['name']): str,
+                    vol.Required("token", default=old_entry.data['token']): str,
+                    vol.Required("secret", default=old_entry.data['secret']): str,
+                }
+            )
+        )
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle the initial step."""
@@ -178,7 +204,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         self.data = config_entry.data
         self.sb = SwitchBot(
-            token=self.data["token"], secret=self.data["secret"])
+            token=self.data["token"],
+            secret=self.data["secret"],
+            host=self.data.get("host", switchbot_host)
+        )
         self.discovered_devices = []
         self.selected_device = None
 
