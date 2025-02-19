@@ -4,7 +4,8 @@ from typing import List
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature, STATE_HEAT_PUMP
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_state_change
+from homeassistant.core import Event
+from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, STATE_OFF, STATE_ON
@@ -116,8 +117,9 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from temperature sensor: %s", ex)
 
-    async def _async_temp_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_temp_sensor_changed(self, event: Event):
         """Handle temperature sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -138,8 +140,9 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from power sensor: %s", ex)
 
-    async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_power_sensor_changed(self, event: Event):
         """Handle power sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -150,16 +153,16 @@ class SwitchBotRemoteWaterHeater(WaterHeaterEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         if self._temperature_sensor:
-            async_track_state_change(
-                self.hass, self._temperature_sensor, self._async_temp_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._temperature_sensor], self._async_temp_sensor_changed)
 
             temp_sensor_state = self.hass.states.get(self._temperature_sensor)
             if temp_sensor_state and temp_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_temp(temp_sensor_state)
 
         if self._power_sensor:
-            async_track_state_change(
-                self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._power_sensor], self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:

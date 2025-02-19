@@ -1,7 +1,7 @@
 import logging
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_state_change
+from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.climate.const import (
     HVACMode,
@@ -249,8 +249,9 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from temperature sensor: %s", ex)
 
-    async def _async_temp_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_temp_sensor_changed(self, event):
         """Handle temperature sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -266,8 +267,9 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from humidity sensor: %s", ex)
 
-    async def _async_humidity_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_humidity_sensor_changed(self, event):
         """Handle humidity sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -288,8 +290,9 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from power sensor: %s", ex)
 
-    async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_power_sensor_changed(self, event: Event):
         """Handle power sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -311,24 +314,24 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
                 'last_on_operation')
 
         if self._temperature_sensor:
-            async_track_state_change(
-                self.hass, self._temperature_sensor, self._async_temp_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._temperature_sensor], self._async_temp_sensor_changed)
 
             temp_sensor_state = self.hass.states.get(self._temperature_sensor)
             if temp_sensor_state and temp_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_temp(temp_sensor_state)
 
         if self._humidity_sensor:
-            async_track_state_change(
-                self.hass, self._humidity_sensor, self._async_humidity_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._humidity_sensor], self._async_humidity_sensor_changed)
 
             humidity_sensor_state = self.hass.states.get(self._humidity_sensor)
             if humidity_sensor_state and humidity_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_humidity(humidity_sensor_state)
 
         if self._power_sensor:
-            async_track_state_change(
-                self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._power_sensor], self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:
