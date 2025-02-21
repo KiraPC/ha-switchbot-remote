@@ -1,7 +1,7 @@
 import logging
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_state_change
+from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.climate.const import (
     HVACMode,
@@ -38,7 +38,7 @@ HVAC_REMOTE_MODES = {
     HVACMode.OFF: 1,
     HVACMode.COOL: 2,
     HVACMode.DRY: 3,
-    HVACMode.AUTO: 1,
+    HVACMode.AUTO: 0,
     HVACMode.FAN_ONLY: 4,
     HVACMode.HEAT: 5,
 }
@@ -91,8 +91,6 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             FAN_HIGH,
         ]
 
-        self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
-
         self._temperature_sensor = options.get(CONF_TEMPERATURE_SENSOR, None)
         self._humidity_sensor = options.get(CONF_HUMIDITY_SENSOR, None)
         self._current_temperature = None
@@ -102,6 +100,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         # This line will be removed after deprecation period (until 2025.1)
         # https://developers.home-assistant.io/blog/2024/01/24/climate-climateentityfeatures-expanded/
         self._enable_turn_on_off_backwards_compatibility = False
+        self.set_supported_features()
 
     @property
     def device_info(self):
@@ -212,6 +211,14 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         """Turn on."""
         self.set_hvac_mode(self._last_on_operation or HVACMode.COOL)
 
+    def set_supported_features(self):
+        if self.hvac_mode == HVACMode.DRY or self.hvac_mode == HVACMode.FAN_ONLY:
+            # switchbot api accept only 25 in DRY Mode
+            self.set_temperature(temperature=25)
+            self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.FAN_MODE
+        else:
+            self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+
     def set_temperature(self, **kwargs):
         self._target_temperature = kwargs.get("temperature")
 
@@ -234,6 +241,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self._update_remote()
 
     def _update_remote(self):
+        self.set_supported_features()
         if (self._hvac_mode != HVACMode.OFF and self._override_off_command):
             self.sb.command(
                 "setAll",
@@ -249,8 +257,9 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from temperature sensor: %s", ex)
 
-    async def _async_temp_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_temp_sensor_changed(self, event):
         """Handle temperature sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -266,8 +275,9 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from humidity sensor: %s", ex)
 
-    async def _async_humidity_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_humidity_sensor_changed(self, event):
         """Handle humidity sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -288,8 +298,9 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         except ValueError as ex:
             _LOGGER.error("Unable to update from power sensor: %s", ex)
 
-    async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
+    async def _async_power_sensor_changed(self, event: Event):
         """Handle power sensor changes."""
+        new_state = event.data.get('new_state')
         if new_state is None:
             return
 
@@ -311,24 +322,24 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
                 'last_on_operation')
 
         if self._temperature_sensor:
-            async_track_state_change(
-                self.hass, self._temperature_sensor, self._async_temp_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._temperature_sensor], self._async_temp_sensor_changed)
 
             temp_sensor_state = self.hass.states.get(self._temperature_sensor)
             if temp_sensor_state and temp_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_temp(temp_sensor_state)
 
         if self._humidity_sensor:
-            async_track_state_change(
-                self.hass, self._humidity_sensor, self._async_humidity_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._humidity_sensor], self._async_humidity_sensor_changed)
 
             humidity_sensor_state = self.hass.states.get(self._humidity_sensor)
             if humidity_sensor_state and humidity_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_humidity(humidity_sensor_state)
 
         if self._power_sensor:
-            async_track_state_change(
-                self.hass, self._power_sensor, self._async_power_sensor_changed)
+            async_track_state_change_event(
+                self.hass, [self._power_sensor], self._async_power_sensor_changed)
 
             power_sensor_state = self.hass.states.get(self._power_sensor)
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:
