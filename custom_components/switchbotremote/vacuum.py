@@ -1,13 +1,9 @@
 from typing import List
 from homeassistant.components.vacuum import (
     StateVacuumEntity,
-    VacuumEntityFeature,  # v2022.5
-    STATE_DOCKED,
-    STATE_CLEANING,
-    STATE_IDLE,
-    STATE_IDLE,
-    STATE_RETURNING
+    VacuumEntityFeature
 )
+from homeassistant.components.vacuum.const import VacuumActivity
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -26,7 +22,7 @@ class SwitchBotRemoteVacuum(StateVacuumEntity, RestoreEntity):
         self._hass = hass
         self._unique_id = sb.id
         self._device_name = sb.name
-        self._state = STATE_IDLE
+        self._state = VacuumActivity.IDLE
 
         self._supported_features = VacuumEntityFeature.STATE | VacuumEntityFeature.START | VacuumEntityFeature.STOP | VacuumEntityFeature.RETURN_HOME
 
@@ -73,7 +69,7 @@ class SwitchBotRemoteVacuum(StateVacuumEntity, RestoreEntity):
     async def async_start(self):
         """Send the power on command."""
         await self.send_command("turnOn")
-        self._state = STATE_CLEANING
+        self._state = VacuumActivity.CLEANING
 
     async def async_stop(self):
         """Send the power off command."""
