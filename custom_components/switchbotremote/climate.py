@@ -38,7 +38,7 @@ HVAC_REMOTE_MODES = {
     HVACMode.OFF: 1,
     HVACMode.COOL: 2,
     HVACMode.DRY: 3,
-    HVACMode.AUTO: 1,
+    HVACMode.AUTO: 0,
     HVACMode.FAN_ONLY: 4,
     HVACMode.HEAT: 5,
 }
@@ -91,8 +91,6 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
             FAN_HIGH,
         ]
 
-        self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
-
         self._temperature_sensor = options.get(CONF_TEMPERATURE_SENSOR, None)
         self._humidity_sensor = options.get(CONF_HUMIDITY_SENSOR, None)
         self._current_temperature = None
@@ -102,6 +100,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         # This line will be removed after deprecation period (until 2025.1)
         # https://developers.home-assistant.io/blog/2024/01/24/climate-climateentityfeatures-expanded/
         self._enable_turn_on_off_backwards_compatibility = False
+        self.set_supported_features()
 
     @property
     def device_info(self):
@@ -212,6 +211,14 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         """Turn on."""
         self.set_hvac_mode(self._last_on_operation or HVACMode.COOL)
 
+    def set_supported_features(self):
+        if self.hvac_mode == HVACMode.DRY or self.hvac_mode == HVACMode.FAN_ONLY:
+            # switchbot api accept only 25 in DRY Mode
+            self.set_temperature(temperature=25)
+            self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.FAN_MODE
+        else:
+            self._supported_features = ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+
     def set_temperature(self, **kwargs):
         self._target_temperature = kwargs.get("temperature")
 
@@ -234,6 +241,7 @@ class SwitchBotRemoteClimate(ClimateEntity, RestoreEntity):
         self._update_remote()
 
     def _update_remote(self):
+        self.set_supported_features()
         if (self._hvac_mode != HVACMode.OFF and self._override_off_command):
             self.sb.command(
                 "setAll",
