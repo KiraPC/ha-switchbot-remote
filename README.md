@@ -55,7 +55,25 @@ Supported device:
 
 _All above devices support DIY types and add custom buttons/commands in device settings_
 
-To configure custom/learned buttonsmake sure the name of the button must be exactly as they appear in the app (case sensitive and characters like spaces).
+### Default Commands for Media Devices
+
+Media devices (TV, IPTV, DVD, Speaker, Projector, Set Top Box) come with a set of default commands that are always available:
+
+**Basic Commands** (automatically included):
+- Power control (turn on/off)
+- Volume control (up/down, mute)
+- Channel/Source control (up/down, set specific channel)
+- Playback control (play, pause, stop, next, previous) - *varies by device type*
+
+**Extra Commands** (optional):
+In addition to basic commands, each media device type has a collection of extra commands that you can optionally enable during device configuration. These include:
+- Navigation buttons (menu, back, select, cursor movements)
+- Direct digit selection (0-9)
+- Device-specific functions (fast forward, rewind, guides, etc.)
+
+During device setup, you can select which extra commands you'd like to add to your device. This allows you to customize the available buttons to match your specific device and control needs.
+
+To configure custom/learned buttons, make sure the name of the button must be exactly as they appear in the app (case sensitive and characters like spaces).
 
 ![SwitchBot app device](./docs/app.png "SwitchBot app device")
 
