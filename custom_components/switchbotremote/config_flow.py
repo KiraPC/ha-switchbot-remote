@@ -216,8 +216,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize SwitchBot options flow."""
-        self.config_entry = config_entry
-
         self.data = config_entry.data
         self.sb = SwitchBot(
             token=self.data["token"],
