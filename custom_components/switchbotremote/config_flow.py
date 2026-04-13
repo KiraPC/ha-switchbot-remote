@@ -161,9 +161,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(_config_entry):
         """Get options flow for this handler."""
-        return OptionsFlowHandler(config_entry)
+        return OptionsFlowHandler()
 
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
         if user_input is not None:
@@ -214,14 +214,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for SwitchBot integration."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+    def __init__(self) -> None:
         """Initialize SwitchBot options flow."""
-        self.data = config_entry.data
-        self.sb = SwitchBot(
-            token=self.data["token"],
-            secret=self.data["secret"],
-            host=self.data.get("host", switchbot_host)
-        )
         self.discovered_devices = []
         self.selected_device = None
         self.current_device_type = None
@@ -238,8 +232,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             _LOGGER.debug(f"Selected device: {self.selected_device}, Type: {self.current_device_type}")
             return await self.async_step_edit_device()
 
+        data = self.config_entry.data
+        sb = SwitchBot(
+            token=data["token"],
+            secret=data["secret"],
+            host=data.get("host", switchbot_host)
+        )
         try:
-            self.discovered_devices = await self.hass.async_add_executor_job(self.sb.remotes)
+            self.discovered_devices = await self.hass.async_add_executor_job(sb.remotes)
             _LOGGER.debug(f"Discovered devices: {self.discovered_devices}")
         except Exception as exception:
             _LOGGER.error(f"Failed to discover devices: {exception}")
