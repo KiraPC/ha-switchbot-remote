@@ -46,6 +46,7 @@
 					"with_speed": "Habilitar velocidades",
 					"with_ion": "Habilitar boton de 'ION'",
 					"with_timer": "Habilitar boton de 'Timer'",
+					"with_swing": "Habilitar boton de 'Swing'",
 					"with_brightness": "Habilitar botones de control brillo",
 					"with_temperature": "Habilitar botones de color de temperatura",
 					"on_command": "Nombre del botón On/Off",

@@ -46,6 +46,7 @@
 					"with_speed": "Enable fan speeds",
 					"with_ion": "Enable 'ION' button",
 					"with_timer": "Enable 'Timer' button",
+					"with_swing": "Enable 'Swing' button",
 					"with_brightness": "Enable brightness control buttons",
 					"with_temperature": "Enable temperature color buttons",
 					"on_command": "On/Off button name",

@@ -46,6 +46,7 @@
 					"with_speed": "Abilita velocità",
 					"with_ion": "Abilita il pulsante 'ION'",
 					"with_timer": "Abilita il pulsante 'Timer'",
+					"with_swing": "Abilita il pulsante 'Swing'",
 					"with_brightness": "Abilita i pulsanti di controllo della luminosità",
 					"with_temperature": "Abilita i pulsanti colorati della temperatura",
 					"on_command": "Nome del pulsante di accensione/spegnimento",

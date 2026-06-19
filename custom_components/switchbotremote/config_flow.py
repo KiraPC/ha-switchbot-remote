@@ -32,6 +32,7 @@ from .const import (
     CONF_WITH_BRIGHTNESS,
     CONF_WITH_ION,
     CONF_WITH_SPEED,
+    CONF_WITH_SWING,
     CONF_WITH_TEMPERATURE,
     CONF_WITH_TIMER,
     DOMAIN,
@@ -93,6 +94,7 @@ STEP_CONFIGURE_DEVICE = {
         vol.Optional(CONF_WITH_SPEED, default=x.get(CONF_WITH_SPEED, False)): bool,
         vol.Optional(CONF_WITH_ION, default=x.get(CONF_WITH_ION, False)): bool,
         vol.Optional(CONF_WITH_TIMER, default=x.get(CONF_WITH_TIMER, False)): bool,
+        vol.Optional(CONF_WITH_SWING, default=x.get(CONF_WITH_SWING, False)): bool,
         vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
     LIGHT_CLASS: lambda x: vol.Schema({
@@ -125,8 +127,8 @@ STEP_CONFIGURE_DEVICE = {
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     switchbot = SwitchBot(
-        token=data["token"], 
-        secret=data["secret"], 
+        token=data["token"],
+        secret=data["secret"],
         host=data.get("host", switchbot_host)
     )
 

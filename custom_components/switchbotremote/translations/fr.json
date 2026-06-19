@@ -46,6 +46,7 @@
 					"with_speed": "Active les vitesses de ventilation",
 					"with_ion": "Active le bouton 'ION'",
 					"with_timer": "Active le bouton 'Timer'",
+					"with_swing": "Active le bouton 'Swing'",
 					"with_brightness": "Active la gestion de luminosité",
 					"with_temperature": "Active la gestion de température de couleur",
 					"on_command": "Nom du bouton On/Off",

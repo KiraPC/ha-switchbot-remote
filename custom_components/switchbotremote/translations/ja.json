@@ -46,6 +46,7 @@
 					"with_speed": "ファン速度を有効化する",
 					"with_ion": "「イオン」ボタンを有効化する",
 					"with_timer": "「タイマー」ボタンを有効化する",
+					"with_swing": "「スイング」ボタンを有効化する",
 					"with_brightness": "明るさの調節ボタンを有効化する",
 					"with_temperature": "色温度のボタンを有効化する",
 					"on_command": "オン/オフ ボタン名",
