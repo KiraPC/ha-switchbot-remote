@@ -149,7 +149,7 @@ class SwitchBotRemoteFan(FanEntity, RestoreEntity):
             await self.async_set_percentage(percentage)
 
     async def async_turn_off(self, **kwargs):
-        """Send the power on command."""
+        """Send the power off command."""
         await self.send_command("turnOff")
         self._state = STATE_OFF
         self._is_on = False

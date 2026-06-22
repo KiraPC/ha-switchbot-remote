@@ -17,6 +17,7 @@ from .const import (
     CONF_WITH_TIMER,
     CONF_WITH_BRIGHTNESS,
     CONF_WITH_TEMPERATURE,
+    MEDIA_PLAYER_COMMANDS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,6 +34,13 @@ class SwitchBotRemoteButton(ButtonEntity):
         self._device_name = sb.name
         self._command_name = command_name
         self._command_icon = command_icon
+
+        # Map the command name to its actual action/tag based on device type
+        extra_commands = MEDIA_PLAYER_COMMANDS.get(sb.type, {}).get("extra", {})
+        command_info = extra_commands.get(command_name, {})
+        self._command_action = command_info.get("action", command_name)  # Default to command_name if not found
+        self._customize = command_info.get("customize", True)
+        self._icon = command_info.get("icon", command_icon)  # Use mapped icon if available
 
     def __repr__(self):
         return f"SwitchBotRemoteButton(command={self._command_name}&device={self.device_info})"
@@ -57,17 +65,16 @@ class SwitchBotRemoteButton(ButtonEntity):
     @property
     def name(self) -> str:
         """Return the display name of this button."""
-        return self._device_name + " " + self._command_name.capitalize()
+        return f"{self._device_name} {self._command_name.replace('_', ' ').capitalize()}"
 
     @property
     def icon(self) -> str:
         """Return the icon of this button."""
-        return self._command_icon
+        return self._icon
 
     async def async_press(self) -> None:
         """Handle the button press."""
-        await self.send_command(self._command_name, None, True)
-
+        await self.send_command(self._command_action, None, self._customize)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> bool:
     remotes: List[SupportedRemote] = hass.data[DOMAIN][entry.entry_id]
@@ -77,6 +84,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         options = entry.data.get(remote.id, {})
         customize_commands = options.get(CONF_CUSTOMIZE_COMMANDS, [])
 
+        # Add predefined buttons for specific types
         if (remote.type in IR_CAMERA_TYPES):
             entities.append(SwitchBotRemoteButton(
                 hass, remote, "SHUTTER", "mdi:camera-iris"))
@@ -107,10 +115,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
                     hass, remote, "WHITE", "mdi:octagram-plus"))
 
         for command in customize_commands:
-            if (command and command.strip()):
-                entities.append(SwitchBotRemoteButton(
-                    hass, remote, command, "mdi:remote"))
-
+            if command and command.strip():
+                # Use the icon from MEDIA_PLAYER_COMMANDS if available, otherwise default to "mdi:remote"
+                command_info = MEDIA_PLAYER_COMMANDS.get(remote.type, {}).get("extra", {}).get(command, {})
+                icon = command_info.get("icon", "mdi:remote")
+                entities.append(SwitchBotRemoteButton(hass, remote, command, icon))
 
     _LOGGER.debug(f'Adding buttons {entities}')
     async_add_entities(entities)

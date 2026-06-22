@@ -42,7 +42,17 @@ from .const import (
     OTHERS_CLASS,
     VACUUM_CLASS,
     WATER_HEATER_CLASS,
+    MEDIA_PLAYER_COMMANDS,
 )
+
+# Generar opciones para comandos extra basados en MEDIA_PLAYER_COMMANDS
+MEDIA_EXTRA_COMMANDS = {
+    device_type: [
+        {"label": command.replace('_', ' ').capitalize(), "value": command}
+        for command in commands.get("extra", {}).keys()
+    ]
+    for device_type, commands in MEDIA_PLAYER_COMMANDS.items()
+}
 
 DEFAULT_HVAC_MODES = [
     HVACMode.AUTO,
@@ -85,9 +95,15 @@ STEP_CONFIGURE_DEVICE = {
         vol.Optional(CONF_HVAC_MODES, description={"suggested_value": x.get(CONF_HVAC_MODES, DEFAULT_HVAC_MODES)}): vol.All(selector({"select": {"multiple": True, "options": HVAC_MODES}})),
         vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
     }),
-    MEDIA_CLASS: lambda x: vol.Schema({
+    MEDIA_CLASS: lambda x, device_type=None: vol.Schema({
         vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
-        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({"select": {"multiple": True, "custom_value": True, "options": []}}),
+        vol.Optional(CONF_CUSTOMIZE_COMMANDS, default=x.get(CONF_CUSTOMIZE_COMMANDS, [])): selector({
+            "select": {
+                "multiple": True,
+                "custom_value": True,
+                "options": MEDIA_EXTRA_COMMANDS.get(device_type.replace("DIY ", ""), []) if device_type else []
+            }
+        }),
     }),
     FAN_CLASS: lambda x: vol.Schema({
         vol.Optional(CONF_POWER_SENSOR, description={"suggested_value": x.get(CONF_POWER_SENSOR)}): selector({"entity": {"filter": {"domain": ["binary_sensor", "input_boolean", "light", "sensor", "switch"]}}}),
@@ -147,9 +163,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(_config_entry):
         """Get options flow for this handler."""
-        return OptionsFlowHandler(config_entry)
+        return OptionsFlowHandler()
 
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
         if user_input is not None:
@@ -200,28 +216,35 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for SwitchBot integration."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+    def __init__(self) -> None:
         """Initialize SwitchBot options flow."""
-        self.data = config_entry.data
-        self.sb = SwitchBot(
-            token=self.data["token"],
-            secret=self.data["secret"],
-            host=self.data.get("host", switchbot_host)
-        )
         self.discovered_devices = []
         self.selected_device = None
-
+        self.current_device_type = None
         self.entities = []
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Manage the options."""
         if user_input is not None:
             self.selected_device = user_input["selected_device"]
+            for remote in self.discovered_devices:
+                if remote.id == self.selected_device:
+                    self.current_device_type = remote.type
+                    break
+            _LOGGER.debug(f"Selected device: {self.selected_device}, Type: {self.current_device_type}")
             return await self.async_step_edit_device()
 
+        data = self.config_entry.data
+        sb = SwitchBot(
+            token=data["token"],
+            secret=data["secret"],
+            host=data.get("host", switchbot_host)
+        )
         try:
-            self.discovered_devices = await self.hass.async_add_executor_job(self.sb.remotes)
+            self.discovered_devices = await self.hass.async_add_executor_job(sb.remotes)
+            _LOGGER.debug(f"Discovered devices: {self.discovered_devices}")
         except Exception as exception:
+            _LOGGER.error(f"Failed to discover devices: {exception}")
             raise ConfigEntryAuthFailed from exception
 
         devices = dict()
@@ -233,21 +256,47 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     async def async_step_edit_device(self, user_input=None):
         """Handle editing a device."""
         if user_input is not None:
+            #_LOGGER.debug(f"Saving config for device {self.selected_device}: {user_input}")
             new_data = self.config_entry.data.copy()
             new_data[self.selected_device] = user_input
             self.hass.config_entries.async_update_entry(
                 self.config_entry,
                 data=new_data,
             )
-            return self.async_create_entry(title=self.data["name"], data=user_input)
+            _LOGGER.debug(f"Updated config_entry.data: {self.config_entry.data}")
+            self.current_device_type = None
+            self.selected_device = None
+            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
+            return self.async_abort(reason="device_configured")
 
         schema = vol.Schema({})
         for remote in self.discovered_devices:
-            if remote.id == self.selected_device and remote.type in CLASS_BY_TYPE:
+            if remote.id == self.selected_device:
+                # _LOGGER.debug(f"Device ID: {remote.id}, Type: {remote.type}")
                 config = self.config_entry.data.get(remote.id, {})
-                schema = STEP_CONFIGURE_DEVICE[CLASS_BY_TYPE[remote.type]](
-                    config)
+                # _LOGGER.debug(f"Loaded config for device {remote.id}: {config}")
+                if remote.type in CLASS_BY_TYPE:
+                    device_class = CLASS_BY_TYPE[remote.type]
+                    # _LOGGER.debug(f"Mapped to class: {device_class}")
+                    if device_class == MEDIA_CLASS:
+                        options = MEDIA_EXTRA_COMMANDS.get(remote.type.replace("DIY ", ""), [])
+                        # _LOGGER.debug(f"Customize commands options for {remote.type}: {options}")
+                        # Asegurarse de que los comandos personalizados existentes se muestren
+                        current_commands = config.get(CONF_CUSTOMIZE_COMMANDS, [])
+                        # _LOGGER.debug(f"Current customize commands for {remote.id}: {current_commands}")
+                        schema = STEP_CONFIGURE_DEVICE[device_class](config, device_type=remote.type)
+                    else:
+                        # _LOGGER.debug(f"Customize commands options for {remote.type}: [] (default for non-MEDIA_CLASS)")
+                        current_commands = config.get(CONF_CUSTOMIZE_COMMANDS, [])
+                        # _LOGGER.debug(f"Current customize commands for {remote.id}: {current_commands}")
+                        schema = STEP_CONFIGURE_DEVICE[device_class](config)
+                else:
+                    _LOGGER.warning(f"Device type {remote.type} not in CLASS_BY_TYPE, defaulting to OTHERS_CLASS")
+                    current_commands = config.get(CONF_CUSTOMIZE_COMMANDS, [])
+                    _LOGGER.debug(f"Current customize commands for {remote.id}: {current_commands}")
+                    schema = STEP_CONFIGURE_DEVICE[OTHERS_CLASS](config)
 
+        #_LOGGER.debug(f"Generated schema for device {remote.id}: {schema}")
         return self.async_show_form(
             step_id="edit_device",
             data_schema=schema

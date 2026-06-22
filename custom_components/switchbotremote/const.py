@@ -158,3 +158,193 @@ IR_WATER_HEATER_TYPES = [
     DIY_WATER_HEATER_TYPE,
     WATER_HEATER_TYPE,
 ]
+
+# This codes and commands specially the test ones are obtained from:
+
+
+MEDIA_PLAYER_COMMANDS = {
+    TV_TYPE: {
+        "basic": {
+            "turn_on": {"action": "turnOn", "customize": False},
+            "turn_off": {"action": "turnOff", "customize": False},
+            "volume_up": {"action": "volumeAdd", "customize": False},
+            "volume_down": {"action": "volumeSub", "customize": False},
+            "channel_up": {"action": "channelAdd", "customize": False},
+            "channel_down": {"action": "channelSub", "customize": False},
+            "set_channel": {"action": "SetChannel", "customize": False},
+            "mute": {"action": "13", "customize": True, "icon": "mdi:volume-mute"},
+
+        },
+        "extra": {
+            "menu": {"action": "5", "customize": True, "icon": "mdi:menu"},
+            "back": {"action": "39", "customize": True, "icon": "mdi:arrow-left"},
+            "select": {"action": "41", "customize": True, "icon": "mdi:check"},
+            "cursor_up": {"action": "43", "customize": True, "icon": "mdi:arrow-up"},
+            "cursor_down": {"action": "49", "customize": True, "icon": "mdi:arrow-down"},
+            "cursor_left": {"action": "45", "customize": True, "icon": "mdi:arrow-left"},
+            "cursor_right": {"action": "47", "customize": True, "icon": "mdi:arrow-right"},
+            "digit_1": {"action": "15", "customize": True, "icon": "mdi:numeric-1-box"},
+            "digit_2": {"action": "17", "customize": True, "icon": "mdi:numeric-2-box"},
+            "digit_3": {"action": "19", "customize": True, "icon": "mdi:numeric-3-box"},
+            "digit_4": {"action": "21", "customize": True, "icon": "mdi:numeric-4-box"},
+            "digit_5": {"action": "23", "customize": True, "icon": "mdi:numeric-5-box"},
+            "digit_6": {"action": "25", "customize": True, "icon": "mdi:numeric-6-box"},
+            "digit_7": {"action": "27", "customize": True, "icon": "mdi:numeric-7-box"},
+            "digit_8": {"action": "29", "customize": True, "icon": "mdi:numeric-8-box"},
+            "digit_9": {"action": "31", "customize": True, "icon": "mdi:numeric-9-box"},
+            "digit_0": {"action": "35", "customize": True, "icon": "mdi:numeric-0-box"},
+            "source_av_tv": {"action": "37", "customize": True, "icon": "mdi:television-classic"},
+            "reset": {"action": "33", "customize": True, "icon": "mdi:restart"},
+        }
+    },
+    IPTV_TYPE: {
+        "basic": {
+            "turn_on": {"action": "turnOn", "customize": False},
+            "turn_off": {"action": "turnOff", "customize": False},
+            "volume_up": {"action": "volumeAdd", "customize": False},
+            "volume_down": {"action": "volumeSub", "customize": False},
+            "channel_up": {"action": "channelAdd", "customize": False},
+            "channel_down": {"action": "channelSub", "customize": False},
+            "set_channel": {"action": "SetChannel", "customize": False},
+            "play": {"action": "23", "customize": True},
+            "mute": {"action": "3", "customize": True, "icon": "mdi:volume-mute"},
+
+        },
+        "extra": {
+            "cursor_up": {"action": "13", "customize": True, "icon": "mdi:arrow-up"},
+            "cursor_left": {"action": "15", "customize": True, "icon": "mdi:arrow-left"},
+            "select": {"action": "17", "customize": True, "icon": "mdi:check"},
+            "cursor_right": {"action": "19", "customize": True, "icon": "mdi:arrow-right"},
+            "cursor_down": {"action": "21", "customize": True, "icon": "mdi:arrow-down"},
+            "back": {"action": "45", "customize": True, "icon": "mdi:arrow-left"},
+            "digit_1": {"action": "25", "customize": True, "icon": "mdi:numeric-1-box"},
+            "digit_2": {"action": "27", "customize": True, "icon": "mdi:numeric-2-box"},
+            "digit_3": {"action": "29", "customize": True, "icon": "mdi:numeric-3-box"},
+            "digit_4": {"action": "31", "customize": True, "icon": "mdi:numeric-4-box"},
+            "digit_5": {"action": "33", "customize": True, "icon": "mdi:numeric-5-box"},
+            "digit_6": {"action": "35", "customize": True, "icon": "mdi:numeric-6-box"},
+            "digit_7": {"action": "37", "customize": True, "icon": "mdi:numeric-7-box"},
+            "digit_8": {"action": "39", "customize": True, "icon": "mdi:numeric-8-box"},
+            "digit_9": {"action": "41", "customize": True, "icon": "mdi:numeric-9-box"},
+            "digit_0": {"action": "43", "customize": True, "icon": "mdi:numeric-0-box"},
+        }
+    },
+    SET_TOP_BOX_TYPE: {
+        "basic": {
+            "turn_on": {"action": "turnOn", "customize": False},
+            "turn_off": {"action": "turnOff", "customize": False},
+            "volume_up": {"action": "volumeAdd", "customize": False},
+            "volume_down": {"action": "volumeSub", "customize": False},
+            "channel_up": {"action": "channelAdd", "customize": False},
+            "channel_down": {"action": "channelSub", "customize": False},
+            "set_channel": {"action": "SetChannel", "customize": False},
+        },
+        "extra": {
+            "standby": {"action": "1", "customize": True, "icon": "mdi:power-standby"},
+            "menu": {"action": "45", "customize": True, "icon": "mdi:menu"},
+            "back": {"action": "25", "customize": True, "icon": "mdi:arrow-left"},
+            "select": {"action": "31", "customize": True, "icon": "mdi:check"},
+            "cursor_up": {"action": "27", "customize": True, "icon": "mdi:arrow-up"},
+            "cursor_left": {"action": "29", "customize": True, "icon": "mdi:arrow-left"},
+            "cursor_right": {"action": "33", "customize": True, "icon": "mdi:arrow-right"},
+            "cursor_down": {"action": "35", "customize": True, "icon": "mdi:arrow-down"},
+            "guide": {"action": "21", "customize": True, "icon": "mdi:television-guide"},
+            "digit_1": {"action": "3", "customize": True, "icon": "mdi:numeric-1-box"},
+            "digit_2": {"action": "5", "customize": True, "icon": "mdi:numeric-2-box"},
+            "digit_3": {"action": "7", "customize": True, "icon": "mdi:numeric-3-box"},
+            "digit_4": {"action": "9", "customize": True, "icon": "mdi:numeric-4-box"},
+            "digit_5": {"action": "11", "customize": True, "icon": "mdi:numeric-5-box"},
+            "digit_6": {"action": "13", "customize": True, "icon": "mdi:numeric-6-box"},
+            "digit_7": {"action": "15", "customize": True, "icon": "mdi:numeric-7-box"},
+            "digit_8": {"action": "17", "customize": True, "icon": "mdi:numeric-8-box"},
+            "digit_9": {"action": "19", "customize": True, "icon": "mdi:numeric-9-box"},
+            "digit_0": {"action": "23", "customize": True, "icon": "mdi:numeric-0-box"},
+        }
+    },
+    DVD_TYPE: {
+        "basic": {
+            "turn_on": {"action": "turnOn", "customize": False},
+            "turn_off": {"action": "turnOff", "customize": False},
+            "play": {"action": "Play", "customize": False},
+            "pause": {"action": "Pause", "customize": False},
+            "stop": {"action": "Stop", "customize": False},
+            "next_track": {"action": "Next", "customize": False},
+            "previous_track": {"action": "Previous", "customize": False},
+            "mute": {"action": "setMute", "customize": False, "icon": "mdi:volume-mute"},
+
+        },
+        "extra": {
+            "fast_forward": {"action": "FastForward", "customize": False, "icon": "mdi:fast-forward"},
+            "rewind": {"action": "Rewind", "customize": False, "icon": "mdi:rewind"},
+            "menu": {"action": "35", "customize": True, "icon": "mdi:menu"},
+            "back": {"action": "37", "customize": True, "icon": "mdi:arrow-left"},
+            "select": {"action": "5", "customize": True, "icon": "mdi:check"},
+            "cursor_up": {"action": "3", "customize": True, "icon": "mdi:arrow-up"},
+            "cursor_left": {"action": "1", "customize": True, "icon": "mdi:arrow-left"},
+            "cursor_right": {"action": "9", "customize": True, "icon": "mdi:arrow-right"},
+            "cursor_down": {"action": "7", "customize": True, "icon": "mdi:arrow-down"},
+            "title": {"action": "31", "customize": True, "icon": "mdi:format-title"},
+            "skip": {"action": "33", "customize": True, "icon": "mdi:skip-forward"},
+            "format": {"action": "27", "customize": True, "icon": "mdi:format-align-center"},
+        }
+    },
+    SPEAKER_TYPE: {
+        "basic": {
+            "turn_on": {"action": "turnOn", "customize": False},
+            "turn_off": {"action": "turnOff", "customize": False},
+            "play": {"action": "Play", "customize": False},
+            "pause": {"action": "Pause", "customize": False},
+            "stop": {"action": "Stop", "customize": False},
+            "next_track": {"action": "Next", "customize": False},
+            "previous_track": {"action": "Previous", "customize": False},
+            "volume_up": {"action": "volumeAdd", "customize": False},
+            "volume_down": {"action": "volumeSub", "customize": False},
+            "mute": {"action": "setMute", "customize": False, "icon": "mdi:volume-mute"},
+
+        },
+        "extra": {
+            "select": {"action": "5", "customize": True, "icon": "mdi:check"},
+            "cursor_up": {"action": "3", "customize": True, "icon": "mdi:arrow-up"},
+            "cursor_left": {"action": "1", "customize": True, "icon": "mdi:arrow-left"},
+            "cursor_right": {"action": "9", "customize": True, "icon": "mdi:arrow-right"},
+            "cursor_down": {"action": "7", "customize": True, "icon": "mdi:arrow-down"},
+            "AudioP": {"action": "13", "customize": True, "icon": "mdi:format-title"},
+            "AudioM": {"action": "17", "customize": True, "icon": "mdi:format-title"},
+            "fast_forward": {"action": "FastForward", "customize": False, "icon": "mdi:fast-forward"},
+            "rewind": {"action": "Rewind", "customize": False, "icon": "mdi:rewind"},
+            "menu": {"action": "33", "customize": True, "icon": "mdi:menu"},
+            "back": {"action": "35", "customize": True, "icon": "mdi:arrow-left"},
+        }
+    },
+    PROJECTOR_TYPE: {
+        "basic": {
+            "turn_on": {"action": "turnOn", "customize": False},
+            "turn_off": {"action": "turnOff", "customize": False},
+            "play": {"action": "21", "customize": True},  # Assuming Select as play/pause toggle
+            "pause": {"action": "21", "customize": True},
+            "volume_up": {"action": "33", "customize": True},
+            "volume_down": {"action": "35", "customize": True},
+            "mute": {"action": "37", "customize": True, "icon": "mdi:volume-mute"},
+
+        },
+        "extra": {
+            "source_computer": {"action": "5", "customize": True, "icon": "mdi:laptop"}, # Not working on test device
+            "source_video": {"action": "7", "customize": True, "icon": "mdi:video"}, # Not working on test device
+            "source_signal": {"action": "9", "customize": True, "icon": "mdi:signal"}, # Not working on test device
+            "menu": {"action": "19", "customize": True, "icon": "mdi:menu"},
+            "select": {"action": "21", "customize": True, "icon": "mdi:check"},
+            "cursor_up": {"action": "23", "customize": True, "icon": "mdi:arrow-up"},
+            "cursor_left": {"action": "25", "customize": True, "icon": "mdi:arrow-left"},
+            "cursor_right": {"action": "27", "customize": True, "icon": "mdi:arrow-right"},
+            "cursor_down": {"action": "29", "customize": True, "icon": "mdi:arrow-down"},
+            "exit": {"action": "31", "customize": True, "icon": "mdi:exit-to-app"},
+            "auto": {"action": "39", "customize": True, "icon": "mdi:auto-fix"}, # Not working on test device
+            "focus_in": {"action": "11", "customize": True, "icon": "mdi:magnify-plus"}, # Not working on test device
+            "focus_out": {"action": "13", "customize": True, "icon": "mdi:magnify-minus"}, # Not working on test device
+            "picture_up": {"action": "15", "customize": True, "icon": "mdi:image-plus"}, # Not working on test device
+            "picture_down": {"action": "17", "customize": True, "icon": "mdi:image-minus"}, # Not working on test device
+            "mode": {"action": "43", "customize": True, "icon": "mdi:projector-screen"}, # Not working on test device
+            # pause": {"action": "41", "customize": True},Assuming PJT_Pause as play/pause toggle # Not working on test device
+        }
+    }
+}

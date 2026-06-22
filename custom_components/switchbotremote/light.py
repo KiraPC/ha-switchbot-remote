@@ -1,8 +1,10 @@
 import logging
-from typing import List
+from typing import List, Any
 from homeassistant.components.light import (
     LightEntity,
-    ColorMode
+    ATTR_BRIGHTNESS,
+    ColorMode,
+    LightEntityFeature,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.core import Event, HomeAssistant, callback
@@ -28,6 +30,8 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
     """
 
     _attr_has_entity_name = False  # Keep if you really don't want HA to manage the name
+    # Define the brightness step for each brightness up/down command
+    BRIGHTNESS_STEP = 25  # This will give approximately 10 steps (255/25)
 
     def __init__(self, hass: HomeAssistant, sb: SupportedRemote, options: dict = {}) -> None:
         """
@@ -43,15 +47,17 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
         self._hass = hass
         self._unique_id = sb.id
         self._device_name = sb.name
+        self._state = STATE_OFF  # Keep _state for backwards compatibility
 
-        # Internally track on/off and brightness. Adjust if brightness isn't really supported.
-        self._state = STATE_OFF
-        self._brightness = None
+        # Color mode configuration
+        self._attr_supported_color_modes = {ColorMode.BRIGHTNESS}
+        self._attr_color_mode = ColorMode.BRIGHTNESS
+        self._attr_brightness = 255  # Default to full brightness when turned on
 
         self._power_sensor = options.get(CONF_POWER_SENSOR, None)
 
-        # Internally store the set of supported color modes (here, only brightness).
-        self._supported_color_modes = {ColorMode.BRIGHTNESS}
+    async def send_command(self, *args):
+        await self._hass.async_add_executor_job(self.sb.command, *args)
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -80,32 +86,18 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
         return self._device_name
 
     @property
-    def supported_color_modes(self) -> set:
-        """
-        Return the set of color modes this light entity supports.
-        """
-        return self._supported_color_modes
+    def brightness(self):
+        """Return the brightness of the light."""
+        return self._attr_brightness
 
     @property
-    def color_mode(self) -> str:
-        """
-        Return the active color mode, which should be one of the supported_color_modes.
-        """
-        return ColorMode.BRIGHTNESS
-
-    @property
-    def brightness(self) -> int | None:
-        """
-        Return the brightness level of the light (0-255).
-        Remove this property if brightness is truly unsupported by the device.
-        """
-        return self._brightness
+    def state(self) -> str | None:
+        """Return the state of the entity."""
+        return self._state
 
     @property
     def is_on(self) -> bool:
-        """
-        Return True if the light is on, otherwise False.
-        """
+        """Return true if light is on."""
         return self._state == STATE_ON
 
     async def async_added_to_hass(self) -> None:
@@ -121,6 +113,9 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
         last_state = await self.async_get_last_state()
         if last_state is not None:
             self._state = last_state.state
+            # Restore brightness if it was saved
+            if last_state.attributes.get(ATTR_BRIGHTNESS) is not None:
+                self._attr_brightness = last_state.attributes.get(ATTR_BRIGHTNESS)
 
         # If a power sensor is defined, track changes to keep the light's state in sync
         if self._power_sensor:
@@ -133,30 +128,69 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
             if power_sensor_state and power_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_power(power_sensor_state)
 
-    async def async_turn_on(self, **kwargs) -> None:
-        """
-        Turn the light on. Sends 'turnOn' to the remote.
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn the entity on."""
+        # Process brightness if provided
+        if ATTR_BRIGHTNESS in kwargs:
+            target_brightness = kwargs[ATTR_BRIGHTNESS]
+            # If light is already on, adjust brightness
+            if self.is_on and self._attr_brightness != target_brightness:
+                await self._async_set_brightness(target_brightness)
+            else:
+                # Store the brightness to be applied when turning on
+                self._attr_brightness = target_brightness
 
-        If brightness is passed in kwargs, use it if your device truly supports brightness.
-        """
+        # Turn on the light
         await self.send_command("turnOn")
         self._state = STATE_ON
+        self.async_write_ha_state()
 
-        if "brightness" in kwargs:
-            self._brightness = kwargs["brightness"]
-
-    async def async_turn_off(self, **kwargs) -> None:
-        """
-        Turn the light off. Sends 'turnOff' to the remote.
-        """
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn the entity off."""
         await self.send_command("turnOff")
         self._state = STATE_OFF
+        self.async_write_ha_state()
 
-    async def send_command(self, *args) -> None:
-        """
-        Use the SwitchBot API (in an executor) to send commands to the remote.
-        """
-        await self._hass.async_add_executor_job(self.sb.command, *args)
+    async def _async_set_brightness(self, brightness):
+        """Set the brightness by sending multiple brightnessUp/Down commands."""
+        if not self.is_on:
+            # If light is off, we should turn it on first
+            await self.send_command("turnOn")
+            self._state = STATE_ON
+
+        # Calculate how many steps to take
+        if brightness > self._attr_brightness:
+            # Need to increase brightness
+            while self._attr_brightness < brightness:
+                await self._async_brightness_up()
+                # Break if we've reached or exceeded the target
+                if self._attr_brightness >= brightness:
+                    break
+        elif brightness < self._attr_brightness:
+            # Need to decrease brightness
+            while self._attr_brightness > brightness:
+                await self._async_brightness_down()
+                # Break if we've reached or gone below the target
+                if self._attr_brightness <= brightness:
+                    break
+
+        self.async_write_ha_state()
+
+    async def _async_brightness_up(self):
+        """Increase brightness by one step."""
+        await self.send_command("brightnessUp")
+        # Increase internal brightness state
+        new_brightness = min(255, self._attr_brightness + self.BRIGHTNESS_STEP)
+        self._attr_brightness = new_brightness
+        return True
+
+    async def _async_brightness_down(self):
+        """Decrease brightness by one step."""
+        await self.send_command("brightnessDown")
+        # Decrease internal brightness state
+        new_brightness = max(1, self._attr_brightness - self.BRIGHTNESS_STEP)
+        self._attr_brightness = new_brightness
+        return True
 
     @callback
     def _async_update_power(self, state) -> None:
@@ -168,6 +202,7 @@ class SwitchBotRemoteLight(LightEntity, RestoreEntity):
         try:
             if state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE) and state.state != self._state:
                 self._state = STATE_ON if state.state == STATE_ON else STATE_OFF
+                self.async_write_ha_state()
         except ValueError as ex:
             _LOGGER.error("Unable to update from power sensor: %s", ex)
 
